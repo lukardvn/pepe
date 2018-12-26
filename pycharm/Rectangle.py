@@ -8,6 +8,7 @@ class Rectangle:
         self.y = y
         self.w = w
         self.h = h
+        self.loadedSprite = sprite
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
 
@@ -36,6 +37,12 @@ class Rectangle:
             top >= obottom or
             bottom <= otop
         )
+
+    def ChangeSprite(self, spriteName):
+        if spriteName != self.loadedSprite:
+            self.loadedSprite = spriteName
+            self.pixmap = QPixmap(Config.spriteLocation + spriteName)
+            self.label.setPixmap(self.pixmap)
 
     def Distance(self, other):
         x2,y2 = other.GetPosition()

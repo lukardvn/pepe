@@ -9,10 +9,20 @@ class Frog(Rectangle):
     height = Config.gridSize
     width = Config.gridSize
 
+    spriteUpP1 = 'frog_sprite_50.png'
+    spriteLeftP1 = 'frog_sprite_l_50.png'
+    spriteRightP1 = 'frog_sprite_r_50.png'
+    spriteDownP1 = 'frog_sprite_d_50.png'
+
+    spriteUpP2 = 'frog_sprite_player2_50.png'
+    spriteLeftP2 = 'frog_sprite_player2l_50.png'
+    spriteRightP2 = 'frog_sprite_player2r_50.png'
+    spriteDownP2 = 'frog_sprite_player2d_50.png'
+
     def __init__(self,x,y, isPlayerTwo = False):
-        self.sprite = 'frog_sprite_50.png'
+        self.sprite = self.spriteUpP1
         if isPlayerTwo:
-            self.sprite = 'frog_sprite_player2_50.png'
+            self.sprite = self.spriteUpP2
 
         super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite)
         self.isPlayerTwo = isPlayerTwo
@@ -25,12 +35,29 @@ class Frog(Rectangle):
 
     def GoLeft(self):
         self.Move(-1,0)
+        if self.isPlayerTwo:
+            self.ChangeSprite(self.spriteLeftP2)
+        else:
+            self.ChangeSprite(self.spriteLeftP1)
+
     def GoRight(self):
         self.Move(1,0)
+        if self.isPlayerTwo:
+            self.ChangeSprite(self.spriteRightP2)
+        else:
+            self.ChangeSprite(self.spriteRightP1)
     def GoUp(self):
         self.Move(0,-1)
+        if self.isPlayerTwo:
+            self.ChangeSprite(self.spriteUpP2)
+        else:
+            self.ChangeSprite(self.spriteUpP1)
     def GoDown(self):
         self.Move(0,1)
+        if self.isPlayerTwo:
+            self.ChangeSprite(self.spriteDownP2)
+        else:
+            self.ChangeSprite(self.spriteDownP1)
 
     def KeyPress(self, key):
         if self.isPlayerTwo:
