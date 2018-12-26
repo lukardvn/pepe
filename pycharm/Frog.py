@@ -34,6 +34,10 @@ class Frog(Rectangle):
         super().SetPosition(newXcoord, newYcoord)
 
     def GoLeft(self):
+        x, y = self.GetPosition()
+        if x == 0 :
+            return
+
         self.Move(-1,0)
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteLeftP2)
@@ -41,18 +45,29 @@ class Frog(Rectangle):
             self.ChangeSprite(self.spriteLeftP1)
 
     def GoRight(self):
+        x, y = self.GetPosition()
+        if x == Config.gridSize * (Config.mapSize -1 ) :
+            return
+
         self.Move(1,0)
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteRightP2)
         else:
             self.ChangeSprite(self.spriteRightP1)
     def GoUp(self):
+        x, y = self.GetPosition()
+        if y == 0 :
+            return
         self.Move(0,-1)
+        self.GetPosition()
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteUpP2)
         else:
             self.ChangeSprite(self.spriteUpP1)
     def GoDown(self):
+        x, y = self.GetPosition()
+        if y == Config.gridSize * (Config.mapSize -1 ) :
+            return
         self.Move(0,1)
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteDownP2)
