@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QLabel
 from Config import Config
 
 class Rectangle:
+
+    allRectangles = []
+
     def __init__(self, x, y, w, h, sprite):
         self.x = x
         self.y = y
@@ -11,6 +14,8 @@ class Rectangle:
         self.loadedSprite = sprite
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
+        self.allRectangles.append(self)
+        #print(str(len(self.allRectangles)))
 
     def __init_ui__(self):
         pass
@@ -37,6 +42,25 @@ class Rectangle:
             top >= obottom or
             bottom <= otop
         )
+
+    def IsEmpty(self,x,y):
+        x = self.x + Config.gridSize * x
+        y = self.y + Config.gridSize * y
+        left = x
+        right = x + self.w
+        top = y
+        bottom = y + self.h
+
+        for other in self.allRectangles :
+            otop, oright, obottom, oleft = other.GetSides()
+            if not (
+                left >= oright or
+                right <= oleft or
+                top >= obottom or
+                bottom <= otop
+            ) :
+                return False
+        return True
 
     def ChangeSprite(self, spriteName):
         if spriteName != self.loadedSprite:

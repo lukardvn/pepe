@@ -34,45 +34,63 @@ class Frog(Rectangle):
         super().SetPosition(newXcoord, newYcoord)
 
     def GoLeft(self):
-        x, y = self.GetPosition()
-        if x == 0 :
-            return
-
-        self.Move(-1,0)
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteLeftP2)
         else:
             self.ChangeSprite(self.spriteLeftP1)
 
-    def GoRight(self):
         x, y = self.GetPosition()
-        if x == Config.gridSize * (Config.mapSize -1 ) :
+        if x == 0 :
             return
 
-        self.Move(1,0)
+        if not self.IsEmpty(-1,0):
+            return
+
+        self.Move(-1,0)
+
+    def GoRight(self):
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteRightP2)
         else:
             self.ChangeSprite(self.spriteRightP1)
-    def GoUp(self):
+
         x, y = self.GetPosition()
-        if y == 0 :
+        if x == Config.gridSize * (Config.mapSize - 1):
             return
-        self.Move(0,-1)
-        self.GetPosition()
+
+        if not self.IsEmpty(1,0):
+            return
+
+        self.Move(1,0)
+    def GoUp(self):
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteUpP2)
         else:
             self.ChangeSprite(self.spriteUpP1)
-    def GoDown(self):
+
         x, y = self.GetPosition()
-        if y == Config.gridSize * (Config.mapSize -1 ) :
+        if y == 0 :
             return
-        self.Move(0,1)
+
+        if not self.IsEmpty(0,-1):
+            return
+
+        self.Move(0,-1)
+
+    def GoDown(self):
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteDownP2)
         else:
             self.ChangeSprite(self.spriteDownP1)
+
+        x, y = self.GetPosition()
+        if y == Config.gridSize * (Config.mapSize - 1):
+            return
+
+        if not self.IsEmpty(0,1):
+            return
+
+        self.Move(0,1)
 
     def KeyPress(self, key):
         if self.isPlayerTwo:
