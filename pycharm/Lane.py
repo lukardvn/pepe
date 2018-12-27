@@ -25,10 +25,13 @@ class Lane(Rectangle):
         self.spc=spacing
         self.obstacles=[]
         self.offset = 100
-        for i in range(numOfObs):
-            o = Obstacle(i*self.offset+self.spc,self.yLane,50,Config.gridSize,self.spd)
-            o.Show()
-            self.obstacles.append(o)
+        if(numOfObs>0):
+            for i in range(numOfObs):
+                o = Obstacle(i*self.offset+self.spc,self.yLane,50,Config.gridSize,self.spd)
+                o.Show()
+                self.obstacles.append(o)
+        else:
+            #
 
 
 
