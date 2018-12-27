@@ -18,6 +18,10 @@ class Lane(Rectangle):
             self.sprite=Config.water
         elif(type=="safe"):
             self.sprite=Config.safeLane
+        elif(type=="roadTop"):
+            self.sprite=Config.trafficTop
+        elif(type=="roadBottom"):
+            self.sprite=Config.trafficBottom
         else:
             self.sprite=Config.traffic
 

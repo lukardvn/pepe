@@ -6,7 +6,8 @@ class Config:
     safeLane="grass.png"
     water = "water.png"
     traffic = "road.png"
-
+    trafficTop = "roadTop.png"
+    trafficBottom = "roadBottom.png"
 
     FPS = 30
 

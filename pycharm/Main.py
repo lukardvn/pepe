@@ -17,10 +17,10 @@ class Frogger(QWidget):
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
 
         self.traka = Lane(0, 0, 0, 0, "")
-        self.traka2 = Lane(2, -3, 300, 1, "")
+        self.traka2 = Lane(2, -3, 300, 1, "roadBottom")
         self.traka3 = Lane(3, 5, 205, 2, "")
         self.traka4 = Lane(1, 11, 550, 3, "")
-        self.traka5 = Lane(3, -4, 240, 4, "")
+        self.traka5 = Lane(3, -4, 240, 4, "roadTop")
         self.traka6 = Lane(0, 0, 0, 5, "")
 
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
