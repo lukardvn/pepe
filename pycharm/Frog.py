@@ -122,3 +122,10 @@ class Frog(Rectangle):
                 self.GoUp()
             elif key == Qt.Key_Left:
                 self.GoLeft()
+
+    def HideFromMenu(self):
+        self.SetSize(0,0)
+
+    def ShowFromMenu(self):
+        self.SetSize(50,50)
+        self.Show()

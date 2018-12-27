@@ -15,18 +15,21 @@ from Obstacle import Obstacle
 from Lane import Lane
 from Rectangle import Rectangle
 
+from MainMenu import Meni
 class Frogger(QWidget):
     def __init__(self):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
+
         self.traka = Lane(0, 0, 0, 0, "")
         self.traka2 = Lane(5, -7, 170, 1, "")
 
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
         self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
 
-        #self.traka = Lane(3, 5, 70, 0, "vula ne zna")
+        self.Menu = Meni(self, self.igrac1, self.igrac2)
 
+        #self.traka = Lane(3, 5, 70, 0, "vula ne zna")
         #self.obs = Rectangle(0,50,50,750,"trava.png")
 
         self.setWindowState(Qt.WindowNoState)
@@ -37,21 +40,22 @@ class Frogger(QWidget):
         self.key_notifier.start()
 
     def __init_ui__(self):
-
-
         #self.traka.Show()
         #self.traka2.Show()
-
         ###
-        self.igrac1.Show()
-        self.igrac2.Show()
+
+        self.igrac1.HideFromMenu()
+        self.igrac2.HideFromMenu()
+
+        #self.igrac1.Show()
+        #self.igrac2.Show()
 
         self.setWindowTitle('Frogger')
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
         self.show()
         self.startThreadForUpdatingObjects()
 
-    def keyReleaseEvent(self, event):
+    def keyPressEvent(self, event):
         if not event.isAutoRepeat():
             self.key_notifier.add_key(event.key())
 
