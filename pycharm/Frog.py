@@ -25,8 +25,9 @@ class Frog(Rectangle):
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
 
-        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, collidesWithFrog=True)
+        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, layer="zabe")
         self.isPlayerTwo = isPlayerTwo
+
 
     def Move(self, x,y):
         currentPosition = super().GetPosition()
@@ -63,6 +64,7 @@ class Frog(Rectangle):
             return
 
         self.Move(1,0)
+
     def GoUp(self):
         if self.isPlayerTwo:
             self.ChangeSprite(self.spriteUpP2)

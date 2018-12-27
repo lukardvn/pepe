@@ -5,20 +5,23 @@ from GameObject import GameObject
 
 class Rectangle(GameObject):
 
-    allRectangles = []
+    allRectangles = {}
 
-    def __init__(self, x, y, w, h, sprite, collidesWithFrog=False):
+    def __init__(self, x, y, w, h, sprite, layer="default"):
         super().__init__()
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+        self.layer = layer
         self.loadedSprite = sprite
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
 
-        if collidesWithFrog:
-            self.allRectangles.append(self)
+        if layer in self.allRectangles.keys():
+            self.allRectangles[layer].append(self)
+        else:
+            self.allRectangles[layer] = [self]
 
     def __init_ui__(self):
         pass
@@ -54,7 +57,7 @@ class Rectangle(GameObject):
         top = y
         bottom = y + self.h
 
-        for other in self.allRectangles :
+        for other in self.allRectangles[self.layer]:
             otop, oright, obottom, oleft = other.GetSides()
             if not (
                 left >= oright or
