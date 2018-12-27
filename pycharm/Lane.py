@@ -10,7 +10,10 @@ class Lane(Rectangle):
 
         self.yLane =  (Config.mapSize - index - 1) * Config.gridSize
 
-        print(str(self.yLane))
+        if numOfObs == 0:
+            type = "safe"
+            print(type)
+        #print(str(self.yLane))
         if(type=="voda"):
             self.sprite=Config.water
         elif(type=="safe"):
@@ -18,20 +21,18 @@ class Lane(Rectangle):
         else:
             self.sprite=Config.traffic
 
-        super().__init__(0, self.yLane, Config.gridSize * Config.mapSize, Config.gridSize, self.sprite)
+        super().__init__(0, self.yLane, Config.gridSize, Config.gridSize*Config.mapSize, self.sprite)
 
         self.n=numOfObs
         self.spd=speed
         self.spc=spacing
         self.obstacles=[]
         self.offset = 100
-        if(numOfObs>0):
-            for i in range(numOfObs):
-                o = Obstacle(i*self.offset+self.spc,self.yLane,50,Config.gridSize,self.spd)
-                o.Show()
-                self.obstacles.append(o)
-        else:
-            #
+        self.Show()
+        for i in range(numOfObs):
+            o = Obstacle(i*self.offset+self.spc,self.yLane,50,Config.gridSize,self.spd)
+            o.Show()
+            self.obstacles.append(o)
 
 
 

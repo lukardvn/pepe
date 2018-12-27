@@ -3,9 +3,10 @@ class Config:
     gridSize = 50   #velicina (u pikselima) 'mreze' po kojoj se krecu igraci
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     spriteLocation = "sprites/"
-    safeLane="safeLane.png"
+    safeLane="trava.png"
     water = "voda.png"
-    traffic = "traffic.png"
+    traffic = "beton1.png"
+
 
     FPS = 30
 
