@@ -18,13 +18,16 @@ class Rectangle(GameObject):
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
 
-        if layer in self.allRectangles.keys():
-            self.allRectangles[layer].append(self)
-        else:
-            self.allRectangles[layer] = [self]
+        self.AddToLayer(layer)
 
     def __init_ui__(self):
         pass
+
+    def AddToLayer(self, layerName):
+        if layerName in self.allRectangles.keys():
+            self.allRectangles[layerName].append(self)
+        else:
+            self.allRectangles[layerName] = [self]
 
     def GetSides(self):
         left = self.x
