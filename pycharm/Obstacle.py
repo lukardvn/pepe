@@ -6,9 +6,12 @@ class Obstacle(Rectangle):
     speed = 0
 
     def __init__(self, x, y, w, h, s):
-        self.sprite = 'safeLane.png'
+        self.sprite = 'car_1_right.png'
+        if s < 0:
+            self.sprite = "car_1_left.png"
+
         self.speed = s
-        self.buffer = 40
+        self.buffer = 70
         super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
 
     def update(self):

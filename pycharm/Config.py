@@ -3,9 +3,9 @@ class Config:
     gridSize = 50   #velicina (u pikselima) 'mreze' po kojoj se krecu igraci
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     spriteLocation = "sprites/"
-    safeLane="trava.png"
-    water = "voda.png"
-    traffic = "beton1.png"
+    safeLane="grass.png"
+    water = "water.png"
+    traffic = "road.png"
 
 
     FPS = 30
@@ -16,5 +16,5 @@ class Config:
     layerDrva = 'drva'
 
                             #X, Y
-    player1StartPosition = (0,0)
-    player2StartPosition = (14,14)
+    player1StartPosition = (3,14)
+    player2StartPosition = (10,14)

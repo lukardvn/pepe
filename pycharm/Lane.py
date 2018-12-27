@@ -27,10 +27,11 @@ class Lane(Rectangle):
         self.spd=speed
         self.spc=spacing
         self.obstacles=[]
-        self.offset = 100
+        self.offset = 220
         self.Show()
+
         for i in range(numOfObs):
-            o = Obstacle(i*self.offset+self.spc,self.yLane,50,Config.gridSize,self.spd)
+            o = Obstacle(i*self.spc + self.offset, self.yLane, 100,Config.gridSize,self.spd)
             o.Show()
             self.obstacles.append(o)
 

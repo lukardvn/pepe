@@ -1,9 +1,6 @@
 import sys
-import threading
-import time
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QWidget, QLabel, QApplication
 
 from key_notifier import KeyNotifier
@@ -11,9 +8,7 @@ from key_notifier import KeyNotifier
 from Config import Config
 from Frog import Frog
 from GameObject import GameObject, GOUpdater
-from Obstacle import Obstacle
 from Lane import Lane
-from Rectangle import Rectangle
 
 from MainMenu import Meni
 class Frogger(QWidget):
@@ -22,7 +17,11 @@ class Frogger(QWidget):
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
 
         self.traka = Lane(0, 0, 0, 0, "")
-        self.traka2 = Lane(5, -7, 170, 1, "")
+        self.traka2 = Lane(2, -3, 300, 1, "")
+        self.traka3 = Lane(3, 5, 205, 2, "")
+        self.traka4 = Lane(1, 11, 550, 3, "")
+        self.traka5 = Lane(3, -4, 240, 4, "")
+        self.traka6 = Lane(0, 0, 0, 5, "")
 
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
         self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
