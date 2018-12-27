@@ -8,16 +8,16 @@ class Obstacle(Rectangle):
     speed = 0
 
     def __init__(self, x, y, w, h, s):
-        super().__init__(x, y, w, h)
-        self.sprite = 'car_obstacle.png'
+        self.sprite = 'safeLane.png'
         self.speed = s
+        self.buffer = 40
+        super().__init__(x, y, w, h, self.sprite)
 
     def update(self):
-        self.x = self.x + self.speed
+        x,y = self.GetPosition()
 
-        if self.speed > 0 and self.x > Config.gridSize:
-            #x = -self.w - Config.gridSize
-            self.x, self.y = self.SetPosition(-self.w - Config.gridSize, self.y)
+        self.SetPosition(x + self.speed, self.y)
+        if self.speed > 0 and self.x > Config.gridSize * Config.mapSize:
+            self.SetPosition(-self.w - self.buffer, y)
         elif self.speed < 0 and self.x + self.w < Config.gridSize:
-            #x = self.w + Config.gridSize
-            self.x, self.y = self.SetPosition(self.w + Config.gridSize, self.y)
+            self.SetPosition(Config.gridSize * Config.mapSize + self.buffer, y)
