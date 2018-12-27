@@ -52,7 +52,9 @@ class Frogger(QWidget):
         self.startThreadForUpdatingObjects()
 
     def keyReleaseEvent(self, event):
-        self.key_notifier.add_key(event.key())
+        if not event.isAutoRepeat():
+            self.key_notifier.add_key(event.key())
+
 
     def __update_position__(self, key):
         self.igrac1.KeyPress(key)
