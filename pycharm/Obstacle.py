@@ -16,6 +16,8 @@ class Obstacle(Rectangle):
         self.x = self.x + self.speed
 
         if self.speed > 0 and self.x > Config.gridSize:
-            x = -self.w - Config.gridSize
-        elif self.speed < 0 and self.x < Config.gridSize:
-            x = self.w + Config.gridSize
+            #x = -self.w - Config.gridSize
+            self.x, self.y = self.SetPosition(-self.w - Config.gridSize, self.y)
+        elif self.speed < 0 and self.x + self.w < Config.gridSize:
+            #x = self.w + Config.gridSize
+            self.x, self.y = self.SetPosition(self.w + Config.gridSize, self.y)
