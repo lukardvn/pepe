@@ -49,6 +49,13 @@ class Rectangle(GameObject):
             bottom <= otop
         )
 
+    def CollisionLayerSpecific(self, checkForLayer):
+        if checkForLayer in self.allRectangles.keys():
+            for obj in self.allRectangles[checkForLayer]:
+                if self.Collision(obj):
+                    return True
+        return False
+
     def IsEmpty(self,x,y):
         x = self.x + Config.gridSize * x
         y = self.y + Config.gridSize * y

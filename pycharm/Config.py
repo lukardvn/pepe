@@ -9,6 +9,11 @@ class Config:
 
     FPS = 30
 
+    layerZabe = 'zabe'
+    layerPrepreke = 'obstacles'
+    layerKola = 'kola'
+    layerDrva = 'drva'
+
                             #X, Y
     player1StartPosition = (0,0)
     player2StartPosition = (14,14)

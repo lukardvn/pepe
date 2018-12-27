@@ -1,5 +1,3 @@
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel
 from Rectangle import Rectangle
 from Config import Config
 
@@ -11,7 +9,7 @@ class Obstacle(Rectangle):
         self.sprite = 'safeLane.png'
         self.speed = s
         self.buffer = 40
-        super().__init__(x, y, w, h, self.sprite)
+        super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
 
     def update(self):
         x,y = self.GetPosition()

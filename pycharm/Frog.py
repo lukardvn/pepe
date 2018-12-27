@@ -20,14 +20,22 @@ class Frog(Rectangle):
     spriteRightP2 = 'frog_sprite_player2r_50.png'
     spriteDownP2 = 'frog_sprite_player2d_50.png'
 
-    def __init__(self,x,y, isPlayerTwo = False):
+    def __init__(self, x, y, isPlayerTwo = False):
+        self.startX = x
+        self.startY = y
         self.sprite = self.spriteUpP1
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
 
-        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, layer="zabe")
+        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, layer=Config.layerZabe)
         self.isPlayerTwo = isPlayerTwo
 
+    def update(self):
+        if self.CollisionLayerSpecific(Config.layerPrepreke):
+            self.ReturnToStart()
+
+    def ReturnToStart(self):
+        self.SetPosition(self.startX * Config.gridSize, self.startY * Config.gridSize)
 
     def Move(self, x,y):
         currentPosition = super().GetPosition()
