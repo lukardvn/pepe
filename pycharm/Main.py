@@ -1,4 +1,6 @@
 import sys
+import threading
+import time
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
@@ -8,6 +10,8 @@ from key_notifier import KeyNotifier
 
 from Config import Config
 from Frog import Frog
+from GameObject import GameObject
+from Obstacle import Obstacle
 
 class Frogger(QWidget):
     def __init__(self):
@@ -30,6 +34,7 @@ class Frogger(QWidget):
         self.setWindowTitle('Frogger')
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
         self.show()
+        self.startThreadForUpdatingObjects()
 
     def keyReleaseEvent(self, event):
         self.key_notifier.add_key(event.key())
@@ -48,8 +53,20 @@ class Frogger(QWidget):
             print("Razdaljina je: " + str(self.igrac1.Distance(self.igrac2)))
 
     def closeEvent(self, event):
+        self.updaterThreadWork = False
         self.key_notifier.die()
 
+    def startThreadForUpdatingObjects(self):
+        self.updaterThread = threading.Thread(target=self.updateAllGameObjects, args=())
+        self.updaterThreadWork = True
+        self.updaterThread.start()
+
+
+    def updateAllGameObjects(self):
+        while self.updaterThreadWork:
+            for gameObject in GameObject.allGameObjects:
+                gameObject.update()
+            time.sleep(1 / Config.FPS)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

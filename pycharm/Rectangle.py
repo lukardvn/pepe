@@ -1,12 +1,14 @@
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
 from Config import Config
+from GameObject import GameObject
 
-class Rectangle:
+class Rectangle(GameObject):
 
     allRectangles = []
 
     def __init__(self, x, y, w, h, sprite):
+        super().__init__()
         self.x = x
         self.y = y
         self.w = w
@@ -58,7 +60,7 @@ class Rectangle:
                 right <= oleft or
                 top >= obottom or
                 bottom <= otop
-            ) :
+            ):
                 return False
         return True
 

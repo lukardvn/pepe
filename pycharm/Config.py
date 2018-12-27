@@ -6,6 +6,9 @@ class Config:
     safeLane="imgs/safeLane.png"
     water = "imgs/voda.png"
     traffic = "imgs/traffic.png"
+
+    FPS = 30
+
                             #X, Y
     player1StartPosition = (0,0)
     player2StartPosition = (14,14)
