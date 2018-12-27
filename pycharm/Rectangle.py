@@ -7,7 +7,7 @@ class Rectangle(GameObject):
 
     allRectangles = []
 
-    def __init__(self, x, y, w, h, sprite):
+    def __init__(self, x, y, w, h, sprite, collidesWithFrog=False):
         super().__init__()
         self.x = x
         self.y = y
@@ -16,8 +16,9 @@ class Rectangle(GameObject):
         self.loadedSprite = sprite
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
-        self.allRectangles.append(self)
-        #print(str(len(self.allRectangles)))
+
+        if collidesWithFrog:
+            self.allRectangles.append(self)
 
     def __init_ui__(self):
         pass

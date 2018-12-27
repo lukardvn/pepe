@@ -2,6 +2,7 @@ from Rectangle import Rectangle
 from PyQt5.QtCore import Qt
 
 from Config import Config
+import time
 
 class Frog(Rectangle):
     # height = 50
@@ -24,7 +25,7 @@ class Frog(Rectangle):
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
 
-        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite)
+        super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, collidesWithFrog=True)
         self.isPlayerTwo = isPlayerTwo
 
     def Move(self, x,y):
@@ -69,7 +70,7 @@ class Frog(Rectangle):
             self.ChangeSprite(self.spriteUpP1)
 
         x, y = self.GetPosition()
-        if y == 0 :
+        if y == 0:
             return
 
         if not self.IsEmpty(0,-1):
