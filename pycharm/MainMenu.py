@@ -31,6 +31,30 @@ class Meni(QWidget):
         self.twoPlayerWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.Widgets.append(self.twoPlayerWidget)
 
+        self.highscoresWidget = QPushButton(QWidget)
+        self.highscoresWidget.setStyleSheet("border-image: url('sprites/widgetsHighscores.png') 0 0 0 0 stretch stretch;")
+        self.highscoresWidget.resize(400, 70)
+        self.highscoresWidget.move(5, 400)
+        #self.highscoresWidget.clicked.connect(self.optionsClicked)
+        self.highscoresWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.Widgets.append(self.highscoresWidget)
+
+        self.optionsWidget = QPushButton(QWidget)
+        self.optionsWidget.setStyleSheet("border-image: url('sprites/widgetsOptions.png') 0 0 0 0 stretch stretch;")
+        self.optionsWidget.resize(400, 70)
+        self.optionsWidget.move(5, 500)
+        #self.optionsWidget.clicked.connect(self.optionsClicked)
+        self.optionsWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.Widgets.append(self.optionsWidget)
+
+        self.exitWidget = QPushButton(QWidget)
+        self.exitWidget.setStyleSheet("border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;")
+        self.exitWidget.resize(400, 70)
+        self.exitWidget.move(5, 600)
+        #self.exitWidget.clicked.connect(self.optionsClicked)
+        self.exitWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.Widgets.append(self.exitWidget)
+
         self.igrac1 = igrac1
         self.igrac2 = igrac2
 
