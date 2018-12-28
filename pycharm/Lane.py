@@ -8,11 +8,12 @@ class Lane(Rectangle):
     #n je broj kola u traci,spd->brzina,spc->razmak izmedju njih,ostalo sve isto i type je tip povrsine
     def __init__(self,numOfObs,speed,spacing,index,type):
 
-        self.yLane =  (Config.mapSize - index - 1) * Config.gridSize
-
+        Config.yLane = (Config.mapSize - index - 1) * Config.gridSize
+        Config.indexHelper = index
+        #print(self.yLane)
         if numOfObs == 0:
             type = "safe"
-            print(type)
+            #print(type)
         #print(str(self.yLane))
         if(type=="voda"):
             self.sprite=Config.water
@@ -25,7 +26,7 @@ class Lane(Rectangle):
         else:
             self.sprite=Config.traffic
 
-        super().__init__(0, self.yLane, Config.gridSize, Config.gridSize*Config.mapSize, self.sprite)
+        super().__init__(0, Config.yLane,Config.gridSize*Config.mapSize,  Config.gridSize,self.sprite)
 
         self.n=numOfObs
         self.spd=speed
@@ -35,12 +36,26 @@ class Lane(Rectangle):
         self.Show()
 
         for i in range(numOfObs):
-            o = Obstacle(i*self.spc + self.offset, self.yLane, 100,Config.gridSize,self.spd)
-            o.Show()
-            self.obstacles.append(o)
-
-
-
+            if index == 6:
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, 120, Config.gridSize, self.spd)
+                o.Show()
+                self.obstacles.append(o)
+            elif index == 7:
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, 158, Config.gridSize, self.spd)
+                o.Show()
+                self.obstacles.append(o)
+            elif index == 8:
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, 158, Config.gridSize, self.spd)
+                o.Show()
+                self.obstacles.append(o)
+            elif index == 9:
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, 310, Config.gridSize, self.spd)
+                o.Show()
+                self.obstacles.append(o)
+            else:
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, 100, Config.gridSize, self.spd)
+                o.Show()
+                self.obstacles.append(o)
 
 
 

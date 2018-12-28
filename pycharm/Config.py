@@ -8,7 +8,12 @@ class Config:
     traffic = "road.png"
     trafficTop = "roadTop.png"
     trafficBottom = "roadBottom.png"
-
+    yLane = 0
+    indexHelper = 0
+    obstacleHelper1 = 0
+    obstacleHelper2 = 0
+    obstacleHelper3 = 0
+    obstacleHelper = 0
     FPS = 30
 
     layerZabe = 'zabe'

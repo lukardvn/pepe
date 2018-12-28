@@ -9,6 +9,7 @@ from Config import Config
 from Frog import Frog
 from GameObject import GameObject, GOUpdater
 from Lane import Lane
+from Rectangle import Rectangle
 
 from MainMenu import Meni
 class Frogger(QWidget):
@@ -22,6 +23,15 @@ class Frogger(QWidget):
         self.traka4 = Lane(1, 11, 550, 3, "")
         self.traka5 = Lane(3, -4, 240, 4, "roadTop")
         self.traka6 = Lane(0, 0, 0, 5, "")
+        self.traka7 = Lane(3,5.6,150,6,"voda")
+        self.traka8 = Lane(2,-3.2,200,7,"voda")
+        self.traka9 = Lane(3,2.5,250,8,"voda")
+        self.traka10 = Lane(2,-9.7,325,9,"voda")
+        self.traka11 = Lane(0,0,0,10,"")
+
+
+        #self.obj = Rectangle(50,120,310,50,"log_large_right.png")
+
 
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
         self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
@@ -45,6 +55,7 @@ class Frogger(QWidget):
 
         self.igrac1.HideFromMenu()
         self.igrac2.HideFromMenu()
+        #self.obj.Show()
 
         #self.igrac1.Show()
         #self.igrac2.Show()
