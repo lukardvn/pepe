@@ -105,3 +105,6 @@ class Rectangle(GameObject):
         self.w = w
         self.h = h
         self.label.setGeometry(self.x, self.y, self.w, self.h)
+
+    def GetSize(self):
+        return (self.w, self.h)

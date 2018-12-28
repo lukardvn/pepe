@@ -21,6 +21,23 @@ class Config:
     layerKola = 'kola'
     layerDrva = 'drva'
 
+    availableCars = {
+        "car_1": 100,
+        "car_2": 100,
+        "car_3": 100
+    }
+
+    availableTrucks = {
+        "truck_1": 200,
+        "truck_2": 135
+    }
+
+    availableLogs = {
+        "log_small": 120,
+        "log_medium": 158,
+        "log_large": 310
+    }
+
                             #X, Y
-    player1StartPosition = (3,14)
-    player2StartPosition = (10,14)
+    player1StartPosition = (10,14)
+    player2StartPosition = (3,14)

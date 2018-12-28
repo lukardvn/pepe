@@ -36,26 +36,16 @@ class Lane(Rectangle):
         self.Show()
 
         for i in range(numOfObs):
-            if index == 6:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, 120, Config.gridSize, self.spd)
-                o.Show()
-                self.obstacles.append(o)
-            elif index == 7:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, 158, Config.gridSize, self.spd)
-                o.Show()
-                self.obstacles.append(o)
-            elif index == 8:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, 158, Config.gridSize, self.spd)
-                o.Show()
-                self.obstacles.append(o)
-            elif index == 9:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, 310, Config.gridSize, self.spd)
+            if type == "voda":
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd, isLogLane=True)
                 o.Show()
                 self.obstacles.append(o)
             else:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, 100, Config.gridSize, self.spd)
+                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd)
                 o.Show()
                 self.obstacles.append(o)
+
+
 
 
 
