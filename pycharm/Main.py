@@ -93,8 +93,9 @@ class Frogger(QWidget):
         self.updaterGameObjekataThread.start()
 
 
-    def updateAllGameObjects(self, gameObj):
-        gameObj.update()
+    def updateAllGameObjects(self, dummy):
+        for gameObject in GameObject.allGameObjects:
+            gameObject.update()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

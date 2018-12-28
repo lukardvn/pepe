@@ -22,7 +22,5 @@ class GOUpdater(QtCore.QThread):
 
     def run(self):
         while self.updaterThreadWork:
-            for gameObject in GameObject.allGameObjects:
-                #gameObject.update()
-                self.nekiObjekat.emit(gameObject)
+            self.nekiObjekat.emit(1)
             time.sleep(1 / Config.FPS)

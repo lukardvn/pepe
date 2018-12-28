@@ -1,6 +1,7 @@
+import sys
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit
 from Config import Config
 
 class Meni(QWidget):
@@ -13,7 +14,7 @@ class Meni(QWidget):
         pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.bgImg)
+        #self.Widgets.append(self.bgImg)
 
         self.onePlayerWidget = QPushButton(QWidget)
         self.onePlayerWidget.setObjectName("1PlayerWidget")
@@ -47,7 +48,7 @@ class Meni(QWidget):
         self.optionsWidget.setStyleSheet("QPushButton#optionsWidget { border-image: url('sprites/widgetsOptions.png') 0 0 0 0 stretch stretch;} QPushButton#optionsWidget:hover { border-image: url('sprites/widgetsOptionsHover.png') 0 0 0 0 stretch stretch;}")
         self.optionsWidget.resize(400, 70)
         self.optionsWidget.move(5, 500)
-        #self.optionsWidget.clicked.connect(self.optionsClicked)
+        self.optionsWidget.clicked.connect(self.optionsClicked)
         self.optionsWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.Widgets.append(self.optionsWidget)
 
@@ -56,9 +57,56 @@ class Meni(QWidget):
         self.exitWidget.setStyleSheet("QPushButton#exitWidget { border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;} QPushButton#exitWidget:hover { border-image: url('sprites/widgetsExitHover.png') 0 0 0 0 stretch stretch;}")
         self.exitWidget.resize(400, 70)
         self.exitWidget.move(5, 600)
-        #self.exitWidget.clicked.connect(self.optionsClicked)
+        self.exitWidget.clicked.connect(self.exitClicked)
         self.exitWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.Widgets.append(self.exitWidget)
+
+        #---------------------------------------------------------------------------
+
+        self.player1Name = QLabel(QWidget)
+        self.player1Name.setObjectName("player1Name")
+        self.player1Name.move(50, 200)
+        self.player1Name.setStyleSheet("QLabel#player1Name {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        self.player1Name.setText("PLAYER 1:")
+        #self.Widgets.append(self.player1Name)
+        self.player1Name.hide()
+
+        self.player2Name = QLabel(QWidget)
+        self.player2Name.setObjectName("player2Name")
+        self.player2Name.move(50, 300)
+        self.player2Name.setStyleSheet("QLabel#player2Name {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        self.player2Name.setText("PLAYER 2:")
+        #self.Widgets.append(self.player2Name)
+        self.player2Name.hide()
+
+        self.player1NameTxt = QLineEdit(QWidget)
+        self.player1NameTxt.setObjectName("player1NameTxt")
+        self.player1NameTxt.move(400, 185)
+        self.player1NameTxt.resize(300, 95)
+        self.player1NameTxt.setStyleSheet("QLineEdit#player1NameTxt {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        self.player1NameTxt.setText("")
+        #self.Widgets.append(self.player1NameTxt)
+        self.player1NameTxt.hide()
+
+        self.player2NameTxt = QLineEdit(QWidget)
+        self.player2NameTxt.setObjectName("player2NameTxt")
+        self.player2NameTxt.move(400, 285)
+        self.player2NameTxt.resize(300, 95)
+        self.player2NameTxt.setStyleSheet("QLineEdit#player2NameTxt {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        self.player2NameTxt.setText("")
+        #self.Widgets.append(self.player2NameTxt)
+        self.player2NameTxt.hide()
+
+        self.okWidget = QPushButton(QWidget)
+        self.okWidget.setObjectName("okWidget")
+        self.okWidget.setStyleSheet("QPushButton#okWidget { border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;} QPushButton#okWidget:hover { border-image: url('sprites/widgetsExitHover.png') 0 0 0 0 stretch stretch;}")
+        self.okWidget.resize(400, 70)
+        self.okWidget.move(50, 400)
+        self.okWidget.clicked.connect(self.okClicked)
+        self.okWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.okWidget.hide()
+        #self.Widgets.append(self.okWidget)
+
 
         self.igrac1 = igrac1
         self.igrac2 = igrac2
@@ -66,10 +114,34 @@ class Meni(QWidget):
     def onePlayerClicked(self):
         for widget in self.Widgets:
             widget.hide()
+        self.bgImg.hide()
         self.igrac1.ShowFromMenu()
 
     def twoPlayerClicked(self):
         for widget in self.Widgets:
             widget.hide()
+        self.bgImg.hide()
         self.igrac1.ShowFromMenu()
         self.igrac2.ShowFromMenu()
+
+    def optionsClicked(self):
+        for widget in self.Widgets:
+            widget.hide()
+        self.player1Name.show()
+        self.player2Name.show()
+        self.player1NameTxt.show()
+        self.player2NameTxt.show()
+        self.okWidget.show()
+
+    def okClicked(self):
+        for widget in self.Widgets:
+            widget.show()
+        self.player1Name.hide()
+        self.player2Name.hide()
+        self.player1NameTxt.hide()
+        self.player2NameTxt.hide()
+        self.okWidget.hide()
+
+    def exitClicked(self):
+        sys.exit(0)
+
