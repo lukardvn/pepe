@@ -7,7 +7,7 @@ class Rectangle(GameObject):
 
     allRectangles = {}
 
-    def __init__(self, x, y, w, h, sprite, layer="default"):
+    def __init__(self, x, y, w, h, sprite, layer=Config.layerDefault):
         super().__init__()
         self.x = x
         self.y = y
@@ -24,10 +24,11 @@ class Rectangle(GameObject):
         pass
 
     def AddToLayer(self, layerName):
-        if layerName in self.allRectangles.keys():
-            self.allRectangles[layerName].append(self)
-        else:
-            self.allRectangles[layerName] = [self]
+        if not self in self.allRectangles.items():
+            if layerName in self.allRectangles.keys():
+                self.allRectangles[layerName].append(self)
+            else:
+                self.allRectangles[layerName] = [self]
 
     def GetSides(self):
         left = self.x
@@ -52,12 +53,18 @@ class Rectangle(GameObject):
             bottom <= otop
         )
 
-    def CollisionLayerSpecific(self, checkForLayer):
+    def CollisionLayerSpecific(self, checkForLayer, returnObject=False):
         if checkForLayer in self.allRectangles.keys():
             for obj in self.allRectangles[checkForLayer]:
                 if self.Collision(obj):
-                    return True
-        return False
+                    if returnObject:
+                        return obj
+                    else:
+                        return True
+        if returnObject:
+            return None
+        else:
+            return False
 
     def IsEmpty(self,x,y):
         x = self.x + Config.gridSize * x

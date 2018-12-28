@@ -8,6 +8,10 @@ class Obstacle(Rectangle):
 
     def __init__(self, x, y, s, isLogLane=False, sprite=None, width=None):
         self.sprite = ''
+        layer = Config.layerDefault
+
+        if isLogLane:
+            layer = Config.layerDrva
 
         if sprite != None and width != None:
             self.sprite = sprite
@@ -22,6 +26,7 @@ class Obstacle(Rectangle):
         self.buffer = 70
         h = 50
         super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
+        super().AddToLayer(layer)
 
     def update(self):
         x,y = self.GetPosition()

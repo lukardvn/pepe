@@ -16,10 +16,12 @@ class Config:
     obstacleHelper = 0
     FPS = 30
 
+    layerDefault = 'default'
     layerZabe = 'zabe'
     layerPrepreke = 'obstacles'
     layerKola = 'kola'
     layerDrva = 'drva'
+    layerWaterLane = 'waterLane'
 
     availableCars = {
         "car_1": 100,

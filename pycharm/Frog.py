@@ -23,6 +23,7 @@ class Frog(Rectangle):
     def __init__(self, x, y, isPlayerTwo = False):
         self.startX = x
         self.startY = y
+        self.logSpeed = 0
         self.sprite = self.spriteUpP1
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
@@ -31,8 +32,28 @@ class Frog(Rectangle):
         self.isPlayerTwo = isPlayerTwo
 
     def update(self):
-        if self.CollisionLayerSpecific(Config.layerPrepreke):
-            self.ReturnToStart()
+        if self.CollisionLayerSpecific(Config.layerWaterLane):
+            objCollidedWith = self.CollisionLayerSpecific(Config.layerDrva, returnObject=True)
+            if objCollidedWith != None:
+                self.logSpeed = objCollidedWith.speed
+                x, y = self.GetPosition()
+
+                #kad je zaba na drvetu i dodje do ivice ekrana, da zaba klizi po drvetu (ne menja svoju poziciju)
+                if x > Config.gridSize * Config.mapSize - self.w or\
+                    x < 1:
+                    return
+
+                self.SetPosition(x + self.logSpeed, self.y)
+
+                if self.logSpeed > 0 and self.x > Config.gridSize * Config.mapSize:
+                    self.SetPosition(-self.w, y)
+                elif self.logSpeed < 0 and self.x + self.w < 0:
+                    self.SetPosition(Config.gridSize * Config.mapSize, y)
+            else:
+                self.ReturnToStart()
+        else:
+            if self.CollisionLayerSpecific(Config.layerPrepreke):
+                self.ReturnToStart()
 
     def ReturnToStart(self):
         self.SetPosition(self.startX * Config.gridSize, self.startY * Config.gridSize)
@@ -83,6 +104,14 @@ class Frog(Rectangle):
         if y == 0:
             return
 
+        #Kad zaba skoci sa drveta da ga vrati na grid
+        if x % Config.gridSize >= 25:
+            x = x + (Config.gridSize - (x % Config.gridSize))
+            self.SetPosition(x,y)
+        else:
+            x = x - (x % Config.gridSize)
+            self.SetPosition(x,y)
+
         if not self.IsEmpty(0,-1):
             return
 
@@ -95,6 +124,15 @@ class Frog(Rectangle):
             self.ChangeSprite(self.spriteDownP1)
 
         x, y = self.GetPosition()
+
+        # Kad zaba skoci sa drveta da ga vrati na grid
+        if x % Config.gridSize >= 25:
+            x = x + (Config.gridSize - (x % Config.gridSize))
+            self.SetPosition(x,y)
+        else:
+            x = x - (x % Config.gridSize)
+            self.SetPosition(x,y)
+
         if y == Config.gridSize * (Config.mapSize - 1):
             return
 

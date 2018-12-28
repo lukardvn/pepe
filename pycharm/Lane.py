@@ -10,6 +10,8 @@ class Lane(Rectangle):
 
         Config.yLane = (Config.mapSize - index - 1) * Config.gridSize
         Config.indexHelper = index
+        layer = Config.layerDefault
+
         #print(self.yLane)
         if numOfObs == 0:
             type = "safe"
@@ -17,6 +19,7 @@ class Lane(Rectangle):
         #print(str(self.yLane))
         if(type=="voda"):
             self.sprite=Config.water
+            layer = Config.layerWaterLane
         elif(type=="safe"):
             self.sprite=Config.safeLane
         elif(type=="roadTop"):
@@ -26,7 +29,10 @@ class Lane(Rectangle):
         else:
             self.sprite=Config.traffic
 
-        super().__init__(0, Config.yLane,Config.gridSize*Config.mapSize,  Config.gridSize,self.sprite)
+
+
+
+        super().__init__(0, Config.yLane,Config.gridSize*Config.mapSize,  Config.gridSize,self.sprite, layer=layer)
 
         self.n=numOfObs
         self.spd=speed
