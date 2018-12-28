@@ -16,7 +16,8 @@ class Meni(QWidget):
         self.Widgets.append(self.bgImg)
 
         self.onePlayerWidget = QPushButton(QWidget)
-        self.onePlayerWidget.setStyleSheet("border-image: url('sprites/widgets1Player.png') 0 0 0 0 stretch stretch;")
+        self.onePlayerWidget.setObjectName("1PlayerWidget")
+        self.onePlayerWidget.setStyleSheet("QPushButton#1PlayerWidget { border-image: url('sprites/widgets1Player.png') 0 0 0 0 stretch stretch;} QPushButton#1PlayerWidget:hover { border-image: url('sprites/widgets1PlayerHover.png') 0 0 0 0 stretch stretch;}")
         self.onePlayerWidget.resize(400, 70)
         self.onePlayerWidget.move(5, 200)
         self.onePlayerWidget.clicked.connect(self.onePlayerClicked)
@@ -24,7 +25,8 @@ class Meni(QWidget):
         self.Widgets.append(self.onePlayerWidget)
 
         self.twoPlayerWidget = QPushButton(QWidget)
-        self.twoPlayerWidget.setStyleSheet("border-image: url('sprites/widgets2Player.png') 0 0 0 0 stretch stretch;")
+        self.twoPlayerWidget.setObjectName("2PlayerWidget")
+        self.twoPlayerWidget.setStyleSheet("QPushButton#2PlayerWidget { border-image: url('sprites/widgets2Player.png') 0 0 0 0 stretch stretch;} QPushButton#2PlayerWidget:hover { border-image: url('sprites/widgets2PlayerHover.png') 0 0 0 0 stretch stretch;}")
         self.twoPlayerWidget.resize(400, 70)
         self.twoPlayerWidget.move(5, 300)
         self.twoPlayerWidget.clicked.connect(self.twoPlayerClicked)
@@ -32,7 +34,8 @@ class Meni(QWidget):
         self.Widgets.append(self.twoPlayerWidget)
 
         self.highscoresWidget = QPushButton(QWidget)
-        self.highscoresWidget.setStyleSheet("border-image: url('sprites/widgetsHighscores.png') 0 0 0 0 stretch stretch;")
+        self.highscoresWidget.setObjectName("highscoresWidget")
+        self.highscoresWidget.setStyleSheet("QPushButton#highscoresWidget { border-image: url('sprites/widgetsHighscores.png') 0 0 0 0 stretch stretch;} QPushButton#highscoresWidget:hover { border-image: url('sprites/widgetsHighscoresHover.png') 0 0 0 0 stretch stretch;}")
         self.highscoresWidget.resize(400, 70)
         self.highscoresWidget.move(5, 400)
         #self.highscoresWidget.clicked.connect(self.optionsClicked)
@@ -40,7 +43,8 @@ class Meni(QWidget):
         self.Widgets.append(self.highscoresWidget)
 
         self.optionsWidget = QPushButton(QWidget)
-        self.optionsWidget.setStyleSheet("border-image: url('sprites/widgetsOptions.png') 0 0 0 0 stretch stretch;")
+        self.optionsWidget.setObjectName("optionsWidget")
+        self.optionsWidget.setStyleSheet("QPushButton#optionsWidget { border-image: url('sprites/widgetsOptions.png') 0 0 0 0 stretch stretch;} QPushButton#optionsWidget:hover { border-image: url('sprites/widgetsOptionsHover.png') 0 0 0 0 stretch stretch;}")
         self.optionsWidget.resize(400, 70)
         self.optionsWidget.move(5, 500)
         #self.optionsWidget.clicked.connect(self.optionsClicked)
@@ -48,7 +52,8 @@ class Meni(QWidget):
         self.Widgets.append(self.optionsWidget)
 
         self.exitWidget = QPushButton(QWidget)
-        self.exitWidget.setStyleSheet("border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;")
+        self.exitWidget.setObjectName("exitWidget")
+        self.exitWidget.setStyleSheet("QPushButton#exitWidget { border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;} QPushButton#exitWidget:hover { border-image: url('sprites/widgetsExitHover.png') 0 0 0 0 stretch stretch;}")
         self.exitWidget.resize(400, 70)
         self.exitWidget.move(5, 600)
         #self.exitWidget.clicked.connect(self.optionsClicked)
