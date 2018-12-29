@@ -5,142 +5,98 @@ from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit
 from Config import Config
 
 class Meni(QWidget):
-    def __init__(self, QWidget, igrac1, igrac2):
+    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers):
         super().__init__()
-        self.Widgets = []
+        self.allWidgets = []
+        self.qWidget = QWidget
 
         self.bgImg = QLabel(QWidget)
         pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png") #prva verzija pozadine MainMenu.png
         pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
-        #self.Widgets.append(self.bgImg)
 
-        self.onePlayerWidget = QPushButton(QWidget)
-        self.onePlayerWidget.setObjectName("1PlayerWidget")
-        self.onePlayerWidget.setStyleSheet("QPushButton#1PlayerWidget { border-image: url('sprites/widgets1Player.png') 0 0 0 0 stretch stretch;} QPushButton#1PlayerWidget:hover { border-image: url('sprites/widgets1PlayerHover.png') 0 0 0 0 stretch stretch;}")
-        self.onePlayerWidget.resize(400, 70)
-        self.onePlayerWidget.move(5, 200)
-        self.onePlayerWidget.clicked.connect(self.onePlayerClicked)
-        self.onePlayerWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.onePlayerWidget)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers)
+        self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
 
-        self.twoPlayerWidget = QPushButton(QWidget)
-        self.twoPlayerWidget.setObjectName("2PlayerWidget")
-        self.twoPlayerWidget.setStyleSheet("QPushButton#2PlayerWidget { border-image: url('sprites/widgets2Player.png') 0 0 0 0 stretch stretch;} QPushButton#2PlayerWidget:hover { border-image: url('sprites/widgets2PlayerHover.png') 0 0 0 0 stretch stretch;}")
-        self.twoPlayerWidget.resize(400, 70)
-        self.twoPlayerWidget.move(5, 300)
-        self.twoPlayerWidget.clicked.connect(self.twoPlayerClicked)
-        self.twoPlayerWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.twoPlayerWidget)
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick):
+        listaWidgeta = []
+        listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 200, 400, 70, singlePlayerOnClick))
+        listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 300, 400, 70, twoPlayerOnClick))
+        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 400, 400, 70))
+        listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 500, 400, 70, self.OptionsSubMenuShow))
+        listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 600, 400, 70, self.exitClicked))
+        return listaWidgeta
 
-        self.highscoresWidget = QPushButton(QWidget)
-        self.highscoresWidget.setObjectName("highscoresWidget")
-        self.highscoresWidget.setStyleSheet("QPushButton#highscoresWidget { border-image: url('sprites/widgetsHighscores.png') 0 0 0 0 stretch stretch;} QPushButton#highscoresWidget:hover { border-image: url('sprites/widgetsHighscoresHover.png') 0 0 0 0 stretch stretch;}")
-        self.highscoresWidget.resize(400, 70)
-        self.highscoresWidget.move(5, 400)
-        #self.highscoresWidget.clicked.connect(self.optionsClicked)
-        self.highscoresWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.highscoresWidget)
+    def OptionsSubMenuInit(self, exitMenuOnClick=None):
+        optionsWidgets = []
+        optionsWidgets.append(self.AddLabel("player1Name", 50, 200, "PLAYER 1:", hide=True))
+        optionsWidgets.append(self.AddLabel("player2Name", 50, 300, "PLAYER 2:", hide=True))
+        optionsWidgets.append(self.AddEditLine("player1NameTxt", 400, 185, 300, 95, "", hide=True))
+        optionsWidgets.append(self.AddEditLine("player2NameTxt", 400, 285, 300, 95, "", hide=True))
+        optionsWidgets.append(self.AddButton("closeOptionsWidget", "widgetsExit", 50, 400, 400, 70, exitMenuOnClick, hide=True))
+        return optionsWidgets
 
-        self.optionsWidget = QPushButton(QWidget)
-        self.optionsWidget.setObjectName("optionsWidget")
-        self.optionsWidget.setStyleSheet("QPushButton#optionsWidget { border-image: url('sprites/widgetsOptions.png') 0 0 0 0 stretch stretch;} QPushButton#optionsWidget:hover { border-image: url('sprites/widgetsOptionsHover.png') 0 0 0 0 stretch stretch;}")
-        self.optionsWidget.resize(400, 70)
-        self.optionsWidget.move(5, 500)
-        self.optionsWidget.clicked.connect(self.optionsClicked)
-        self.optionsWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.optionsWidget)
+    def OptionsSubMenuShow(self):
+        for btn in self.mainButtons:
+            btn.hide()
 
-        self.exitWidget = QPushButton(QWidget)
-        self.exitWidget.setObjectName("exitWidget")
-        self.exitWidget.setStyleSheet("QPushButton#exitWidget { border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;} QPushButton#exitWidget:hover { border-image: url('sprites/widgetsExitHover.png') 0 0 0 0 stretch stretch;}")
-        self.exitWidget.resize(400, 70)
-        self.exitWidget.move(5, 600)
-        self.exitWidget.clicked.connect(self.exitClicked)
-        self.exitWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.Widgets.append(self.exitWidget)
+        for element in self.optionsElements:
+            element.show()
 
-        #---------------------------------------------------------------------------
+    def OptionsSubMenuHide(self):
+        for element in self.optionsElements:
+            element.hide()
 
-        self.player1Name = QLabel(QWidget)
-        self.player1Name.setObjectName("player1Name")
-        self.player1Name.move(50, 200)
-        self.player1Name.setStyleSheet("QLabel#player1Name {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
-        self.player1Name.setText("PLAYER 1:")
-        #self.Widgets.append(self.player1Name)
-        self.player1Name.hide()
+        for btn in self.mainButtons:
+            btn.show()
 
-        self.player2Name = QLabel(QWidget)
-        self.player2Name.setObjectName("player2Name")
-        self.player2Name.move(50, 300)
-        self.player2Name.setStyleSheet("QLabel#player2Name {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
-        self.player2Name.setText("PLAYER 2:")
-        #self.Widgets.append(self.player2Name)
-        self.player2Name.hide()
+    def AddButton(self, objectName, sprite, x, y, width, height, onClick=None, hide=False):
+        btn = QPushButton(self.qWidget)
+        btn.setObjectName(objectName)
+        btn.setStyleSheet(
+            "QPushButton#"+objectName+" { border-image: url('sprites/"+sprite+".png') 0 0 0 0 stretch stretch;} QPushButton#"+objectName+":hover { border-image: url('sprites/"+sprite+"Hover.png') 0 0 0 0 stretch stretch;}")
+        btn.resize(width, height)
+        btn.move(x, y)
+        if onClick != None:
+            btn.clicked.connect(onClick)
+        btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        if hide:
+            btn.hide()
 
-        self.player1NameTxt = QLineEdit(QWidget)
-        self.player1NameTxt.setObjectName("player1NameTxt")
-        self.player1NameTxt.move(400, 185)
-        self.player1NameTxt.resize(300, 95)
-        self.player1NameTxt.setStyleSheet("QLineEdit#player1NameTxt {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
-        self.player1NameTxt.setText("")
-        #self.Widgets.append(self.player1NameTxt)
-        self.player1NameTxt.hide()
+        self.allWidgets.append(btn)
+        return btn
 
-        self.player2NameTxt = QLineEdit(QWidget)
-        self.player2NameTxt.setObjectName("player2NameTxt")
-        self.player2NameTxt.move(400, 285)
-        self.player2NameTxt.resize(300, 95)
-        self.player2NameTxt.setStyleSheet("QLineEdit#player2NameTxt {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
-        self.player2NameTxt.setText("")
-        #self.Widgets.append(self.player2NameTxt)
-        self.player2NameTxt.hide()
+    def AddLabel(self, objectName, x, y, text, hide=False):
+        lbl = QLabel(self.qWidget)
+        lbl.setObjectName(objectName)
+        lbl.move(x, y)
+        lbl.setStyleSheet(
+            "QLabel#"+objectName+" {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        lbl.setText(text)
+        if hide:
+            lbl.hide()
+        self.allWidgets.append(lbl)
+        return lbl
 
-        self.okWidget = QPushButton(QWidget)
-        self.okWidget.setObjectName("okWidget")
-        self.okWidget.setStyleSheet("QPushButton#okWidget { border-image: url('sprites/widgetsExit.png') 0 0 0 0 stretch stretch;} QPushButton#okWidget:hover { border-image: url('sprites/widgetsExitHover.png') 0 0 0 0 stretch stretch;}")
-        self.okWidget.resize(400, 70)
-        self.okWidget.move(50, 400)
-        self.okWidget.clicked.connect(self.okClicked)
-        self.okWidget.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.okWidget.hide()
-        #self.Widgets.append(self.okWidget)
-
-
-        self.igrac1 = igrac1
-        self.igrac2 = igrac2
-
-    def onePlayerClicked(self):
-        for widget in self.Widgets:
+    def AddEditLine(self, objectName, x, y, width, height, text, hide=False):
+        editLine = QLineEdit(self.qWidget)
+        editLine.setObjectName(objectName)
+        editLine.move(x, y)
+        editLine.resize(width, height)
+        editLine.setStyleSheet(
+            "QLineEdit#"+objectName+" {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        editLine.setText(text)
+        # Widgets.append(player1NameTxt)
+        if hide:
+            editLine.hide()
+        self.allWidgets.append(editLine)
+        return editLine
+        
+    def HideMainMenu(self):
+        for widget in self.allWidgets:
             widget.hide()
         self.bgImg.hide()
-        self.igrac1.ShowFromMenu()
-
-    def twoPlayerClicked(self):
-        for widget in self.Widgets:
-            widget.hide()
-        self.bgImg.hide()
-        self.igrac1.ShowFromMenu()
-        self.igrac2.ShowFromMenu()
-
-    def optionsClicked(self):
-        for widget in self.Widgets:
-            widget.hide()
-        self.player1Name.show()
-        self.player2Name.show()
-        self.player1NameTxt.show()
-        self.player2NameTxt.show()
-        self.okWidget.show()
-
-    def okClicked(self):
-        for widget in self.Widgets:
-            widget.show()
-        self.player1Name.hide()
-        self.player2Name.hide()
-        self.player1NameTxt.hide()
-        self.player2NameTxt.hide()
-        self.okWidget.hide()
 
     def exitClicked(self):
         sys.exit(0)

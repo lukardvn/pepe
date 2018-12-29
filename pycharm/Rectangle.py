@@ -41,6 +41,7 @@ class Rectangle(GameObject):
     def Show(self):
         self.label.setPixmap(self.pixmap)
         self.label.setGeometry(self.x, self.y, self.w, self.h)
+        self.label.show()
 
     def Collision(self, other):
         top, right, bottom, left = self.GetSides()

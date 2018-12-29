@@ -18,40 +18,10 @@ class Frogger(QWidget):
     def __init__(self):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
-
-        # self.traka1 = Lane.GenerateSafetyLane()
-        # self.traka2 = Lane.GenerateEasyLane(Config.laneTypeTrafficBottom)
-        # self.traka3 = Lane.GenerateMediumLane()
-        # self.traka4 = Lane.GenerateMediumLane()
-        # self.traka5 = Lane.GenerateMediumLane()
-        # self.traka6 = Lane.GenerateHardLane(Config.laneTypeTrafficTop)
-        # self.traka7 = Lane.GenerateSafetyLane()
-        # self.traka8 = Lane.GenerateEasyWaterLane()
-        # self.traka9 = Lane.GenerateMediumWaterLane()
-        # self.traka10 = Lane.GenerateMediumWaterLane()
-        # self.traka11 = Lane.GenerateHardLane()
-        # self.traka12 = Lane.GenerateMediumWaterLane()
-        # self.traka13 = Lane.GenerateHardWaterLane()
-        # self.traka14 = Lane.GenerateHardWaterLane()
-        # self.traka15 = Lane.GenerateFinalLane()
-
-        Lane.GenerateSafetyLane()
-        Lane.GenerateEasyLane()
-        Lane.GenerateEasyLane()
-        Lane.GenerateEasyLane()
-        Lane.GenerateSafetyLane()
-        Lane.GenerateFinalLane()
-        Lane.GenerateFinalLane(lilyPadPattern=Config.lilypadPatternBO3)
-        Lane.GenerateFinalLane(lilyPadPattern=Config.lilypadPatternBO5V2)
-        Lane.GenerateFinalLane(randomPatternBO5=True)
-
-        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
-        self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
-
-        self.Menu = Meni(self, self.igrac1, self.igrac2)
-
-        #self.traka = Lane(3, 5, 70, 0, "vula ne zna")
-        #self.obs = Rectangle(0,50,50,750,"trava.png")
+        self.Map = [] #lista lejnova
+        self.igrac1 = None
+        self.igrac2 = None
+        self.Menu = None #glavni meni
 
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
@@ -61,21 +31,54 @@ class Frogger(QWidget):
         self.key_notifier.start()
 
     def __init_ui__(self):
-        #self.traka.Show()
-        #self.traka2.Show()
-        ###
-
-        self.igrac1.HideFromMenu()
-        self.igrac2.HideFromMenu()
-        #self.obj.Show()
-
-        #self.igrac1.Show()
-        #self.igrac2.Show()
-
+        self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode)
         self.setWindowTitle('Frogger')
-        self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.show()
         self.startThreadForUpdatingObjects()
+
+    def SinglePlayerMode(self):
+        self.Menu.HideMainMenu()
+        self.DisplayMap()
+        self.CreatePlayers()
+
+    def TwoPlayerMode(self):
+        self.Menu.HideMainMenu()
+        self.DisplayMap()
+        self.CreatePlayers(TwoPlayers=True)
+
+    def CreatePlayers(self, TwoPlayers=False):
+        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
+        if TwoPlayers:
+            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
+
+    def DisplayMap(self):
+        self.Map.append(Lane.GenerateSafetyLane())
+        self.Map.append(Lane.GenerateEasyLane(Config.laneTypeTrafficBottom))
+        self.Map.append(Lane.GenerateMediumLane())
+        self.Map.append(Lane.GenerateMediumLane())
+        self.Map.append(Lane.GenerateMediumLane())
+        self.Map.append(Lane.GenerateHardLane(Config.laneTypeTrafficTop))
+        self.Map.append(Lane.GenerateSafetyLane())
+        self.Map.append(Lane.GenerateEasyWaterLane())
+        self.Map.append(Lane.GenerateMediumWaterLane())
+        self.Map.append(Lane.GenerateMediumWaterLane())
+        self.Map.append(Lane.GenerateHardLane())
+        self.Map.append(Lane.GenerateMediumWaterLane())
+        self.Map.append(Lane.GenerateHardWaterLane())
+        self.Map.append(Lane.GenerateHardWaterLane())
+        self.Map.append(Lane.GenerateFinalLane())
+
+    def DisplayTestMap(self):
+        self.Map.append(Lane.GenerateSafetyLane())
+        self.Map.append(Lane.GenerateEasyLane())
+        self.Map.append(Lane.GenerateEasyLane())
+        self.Map.append(Lane.GenerateEasyLane())
+        self.Map.append(Lane.GenerateSafetyLane())
+        self.Map.append(Lane.GenerateFinalLane())
+        self.Map.append(Lane.GenerateFinalLane(lilyPadPattern=Config.lilypadPatternBO3))
+        self.Map.append(Lane.GenerateFinalLane(lilyPadPattern=Config.lilypadPatternBO5V2))
+        self.Map.append(Lane.GenerateFinalLane(randomPatternBO5=True))
 
     def keyPressEvent(self, event):
         if not event.isAutoRepeat():
@@ -83,17 +86,10 @@ class Frogger(QWidget):
 
 
     def __update_position__(self, key):
-        self.igrac1.KeyPress(key)
-        self.igrac2.KeyPress(key)
-
-        if key == Qt.Key_Space:
-            if self.igrac1.Collision(self.igrac2):
-                print("Sudarili se :(")
-            else:
-                print("Nisu se sudarili")
-
-        if key == Qt.Key_G:
-            print("Razdaljina je: " + str(self.igrac1.Distance(self.igrac2)))
+        if self.igrac1 != None:
+            self.igrac1.KeyPress(key)
+        if self.igrac2 != None:
+            self.igrac2.KeyPress(key)
 
     def closeEvent(self, event):
         self.updaterGameObjekataThread.updaterThreadWork = False
@@ -103,7 +99,6 @@ class Frogger(QWidget):
         self.updaterGameObjekataThread = GOUpdater()
         self.updaterGameObjekataThread.nekiObjekat.connect(self.updateAllGameObjects)
         self.updaterGameObjekataThread.start()
-
 
     def updateAllGameObjects(self, dummy):
         for gameObject in GameObject.allGameObjects:
