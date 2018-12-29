@@ -35,21 +35,18 @@ class Frog(Rectangle):
         if self.IsInWaterLane():
             if self.IsOnLog():
                 # kad je zaba na drvetu i dodje do ivice ekrana, da zaba klizi po drvetu (ne menja svoju poziciju)
-                if self.x > Config.gridSize * Config.mapSize - self.w or \
-                        self.x < 1:
+                if (self.x > Config.gridSize * Config.mapSize - self.w and self.logSpeed > 0) or (self.x < 1 and self.logSpeed < 0):
                     return
 
                 self.SetPosition(self.x + self.logSpeed, self.y)
-
-                if self.logSpeed > 0 and self.x > Config.gridSize * Config.mapSize:
-                    self.SetPosition(-self.w, self.y)
-                elif self.logSpeed < 0 and self.x + self.w < 0:
-                    self.SetPosition(Config.gridSize * Config.mapSize, self.y)
             else:
                 self.Die()
         else:
-            if self.CollisionLayerSpecific(Config.layerPrepreke):
+            if self.CollidedWithObstacle():
                 self.Die()
+
+    def CollidedWithObstacle(self):
+        return self.CollisionLayerSpecific(Config.layerPrepreke)
 
     def IsOnLog(self):
         objCollidedWith = self.CollisionLayerSpecific(Config.layerDrva, returnObject=True)
@@ -66,6 +63,10 @@ class Frog(Rectangle):
 
     def ReturnToStart(self):
         self.SetPosition(self.startX * Config.gridSize, self.startY * Config.gridSize)
+        if self.isPlayerTwo:
+            self.ChangeSprite(self.spriteUpP2)
+        else:
+            self.ChangeSprite(self.spriteUpP1)
 
     def Move(self, x,y):
         currentPosition = super().GetPosition()
