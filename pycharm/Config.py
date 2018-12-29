@@ -2,6 +2,7 @@ class Config:
     gridSize = 50   #velicina (u pikselima) 'mreze' po kojoj se krecu igraci
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     FPS = 30
+    frogLives = 5
                             #X, Y
     player1StartPosition = (10,14)
     player2StartPosition = (3,14)
@@ -10,6 +11,13 @@ class Config:
 
     mainWindow = None  # ovo se postavlja iz MAIN.py
 
+    #paterni za final lane, gde se nalaze jedinice tu ce biti lokvanji
+    #duzina stringa mora biti ista kao map size
+    lilypadPatternBO5Standard = "010010010010010"
+    lilypadPatternBO5V2 = "100100010001001"
+    lilypadPatternBO5V3 = "010001010100010"
+    lilypadPatternBO3 = "000100010001000"
+
     #sprajtovi
     spriteLocation = "sprites/"
     laneSpriteSafety="grass.png"
@@ -17,6 +25,7 @@ class Config:
     laneSpriteTraffic = "road.png"
     laneSpriteTrafficTop = "roadTop.png"
     laneSpriteTrafficBottom = "roadBottom.png"
+    laneSpriteFinal = ''
 
     #collision lejeri (grupisanje rectangli)
     layerDefault = 'default'
@@ -25,8 +34,11 @@ class Config:
     layerKola = 'kola'
     layerDrva = 'drva'
     layerWaterLane = 'waterLane'
+    layerLilypad = 'lokvanj'
 
     laneTypeWater = 'voda'
+    laneTypeFinal = 'finalni'
+    laneTypeFinalBO3 = 'finalniBO3'
     laneTypeTraffic = 'kola'
     laneTypeTrafficTop = 'kolaGornjaTraka'
     laneTypeTrafficBottom = 'kolaDonjaTraka'
@@ -37,7 +49,8 @@ class Config:
         laneTypeTraffic: laneSpriteTraffic,
         laneTypeTrafficTop: laneSpriteTrafficTop,
         laneTypeTrafficBottom: laneSpriteTrafficBottom,
-        laneTypeSafety: laneSpriteSafety
+        laneTypeSafety: laneSpriteSafety,
+        laneTypeFinal: laneSpriteFinal
     }
 
     #sprajtovi grupisani po tipu lejna gde ce se pojaviti
