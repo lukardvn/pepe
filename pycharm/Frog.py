@@ -32,28 +32,37 @@ class Frog(Rectangle):
         self.isPlayerTwo = isPlayerTwo
 
     def update(self):
-        if self.CollisionLayerSpecific(Config.layerWaterLane):
-            objCollidedWith = self.CollisionLayerSpecific(Config.layerDrva, returnObject=True)
-            if objCollidedWith != None:
-                self.logSpeed = objCollidedWith.speed
-                x, y = self.GetPosition()
-
-                #kad je zaba na drvetu i dodje do ivice ekrana, da zaba klizi po drvetu (ne menja svoju poziciju)
-                if x > Config.gridSize * Config.mapSize - self.w or\
-                    x < 1:
+        if self.IsInWaterLane():
+            if self.IsOnLog():
+                # kad je zaba na drvetu i dodje do ivice ekrana, da zaba klizi po drvetu (ne menja svoju poziciju)
+                if self.x > Config.gridSize * Config.mapSize - self.w or \
+                        self.x < 1:
                     return
 
-                self.SetPosition(x + self.logSpeed, self.y)
+                self.SetPosition(self.x + self.logSpeed, self.y)
 
                 if self.logSpeed > 0 and self.x > Config.gridSize * Config.mapSize:
-                    self.SetPosition(-self.w, y)
+                    self.SetPosition(-self.w, self.y)
                 elif self.logSpeed < 0 and self.x + self.w < 0:
-                    self.SetPosition(Config.gridSize * Config.mapSize, y)
+                    self.SetPosition(Config.gridSize * Config.mapSize, self.y)
             else:
-                self.ReturnToStart()
+                self.Die()
         else:
             if self.CollisionLayerSpecific(Config.layerPrepreke):
-                self.ReturnToStart()
+                self.Die()
+
+    def IsOnLog(self):
+        objCollidedWith = self.CollisionLayerSpecific(Config.layerDrva, returnObject=True)
+        if objCollidedWith != None:
+            self.logSpeed = objCollidedWith.speed
+            return True
+        return False
+
+    def IsInWaterLane(self):
+        return self.CollisionLayerSpecific(Config.layerWaterLane)
+
+    def Die(self):
+        self.ReturnToStart()
 
     def ReturnToStart(self):
         self.SetPosition(self.startX * Config.gridSize, self.startY * Config.gridSize)
@@ -70,8 +79,7 @@ class Frog(Rectangle):
         else:
             self.ChangeSprite(self.spriteLeftP1)
 
-        x, y = self.GetPosition()
-        if x == 0 :
+        if self.x == 0 :
             return
 
         if not self.IsEmpty(-1,0):
@@ -85,8 +93,7 @@ class Frog(Rectangle):
         else:
             self.ChangeSprite(self.spriteRightP1)
 
-        x, y = self.GetPosition()
-        if x == Config.gridSize * (Config.mapSize - 1):
+        if self.x == Config.gridSize * (Config.mapSize - 1):
             return
 
         if not self.IsEmpty(1,0):
@@ -100,17 +107,10 @@ class Frog(Rectangle):
         else:
             self.ChangeSprite(self.spriteUpP1)
 
-        x, y = self.GetPosition()
-        if y == 0:
+        if self.y == 0:
             return
 
-        #Kad zaba skoci sa drveta da ga vrati na grid
-        if x % Config.gridSize >= 25:
-            x = x + (Config.gridSize - (x % Config.gridSize))
-            self.SetPosition(x,y)
-        else:
-            x = x - (x % Config.gridSize)
-            self.SetPosition(x,y)
+        self.CorrectXPositionToGrid()
 
         if not self.IsEmpty(0,-1):
             return
@@ -123,23 +123,23 @@ class Frog(Rectangle):
         else:
             self.ChangeSprite(self.spriteDownP1)
 
-        x, y = self.GetPosition()
+        self.CorrectXPositionToGrid()
 
-        # Kad zaba skoci sa drveta da ga vrati na grid
-        if x % Config.gridSize >= 25:
-            x = x + (Config.gridSize - (x % Config.gridSize))
-            self.SetPosition(x,y)
-        else:
-            x = x - (x % Config.gridSize)
-            self.SetPosition(x,y)
-
-        if y == Config.gridSize * (Config.mapSize - 1):
+        if self.y == Config.gridSize * (Config.mapSize - 1):
             return
 
         if not self.IsEmpty(0,1):
             return
 
         self.Move(0,1)
+
+    def CorrectXPositionToGrid(self):
+        if self.x % Config.gridSize >= 25:
+            newX = self.x + (Config.gridSize - (self.x % Config.gridSize))
+            self.SetPosition(newX, self.y)
+        else:
+            newX = self.x - (self.x % Config.gridSize)
+            self.SetPosition(newX, self.y)
 
     def KeyPress(self, key):
         if self.isPlayerTwo:

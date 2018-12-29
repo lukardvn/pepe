@@ -5,57 +5,67 @@ from enum import Enum
 import  random
 
 class Lane(Rectangle):
-    #n je broj kola u traci,spd->brzina,spc->razmak izmedju njih,ostalo sve isto i type je tip povrsine
-    def __init__(self,numOfObs,speed,spacing,index,type):
-
-        Config.yLane = (Config.mapSize - index - 1) * Config.gridSize
-        Config.indexHelper = index
-        layer = Config.layerDefault
-
-        #print(self.yLane)
+    def __init__(self, numOfObs, speed, spacing, typeOfLane):
         if numOfObs == 0:
-            type = "safe"
-            #print(type)
-        #print(str(self.yLane))
-        if(type=="voda"):
-            self.sprite=Config.water
+            typeOfLane = Config.laneTypeSafety
+
+        self.laneType = typeOfLane
+        self.numberOfObstacles = numOfObs
+        self.speed = speed
+        self.spacing = spacing
+        self.obstacles = []
+        self.offset = 285   #ovo bi trebalo da ide random
+        self.sprite = Config.laneTypeToLaneSprite[self.laneType]
+
+        layer = Config.layerDefault
+        if self.laneType == Config.laneTypeWater:
             layer = Config.layerWaterLane
-        elif(type=="safe"):
-            self.sprite=Config.safeLane
-        elif(type=="roadTop"):
-            self.sprite=Config.trafficTop
-        elif(type=="roadBottom"):
-            self.sprite=Config.trafficBottom
-        else:
-            self.sprite=Config.traffic
 
+        laneYCoord = (Config.mapSize - Config.newLaneYIndex - 1) * Config.gridSize
+        Config.newLaneYIndex += 1
 
+        super().__init__(0, laneYCoord, Config.gridSize*Config.mapSize,  Config.gridSize, self.sprite, layer=layer)
 
-
-        super().__init__(0, Config.yLane,Config.gridSize*Config.mapSize,  Config.gridSize,self.sprite, layer=layer)
-
-        self.n=numOfObs
-        self.spd=speed
-        self.spc=spacing
-        self.obstacles=[]
-        self.offset = 220
         self.Show()
+        if self.numberOfObstacles > 0:
+            self.InitObstacles()
 
-        for i in range(numOfObs):
-            if type == "voda":
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd, isLogLane=True)
-                o.Show()
-                self.obstacles.append(o)
+    def InitObstacles(self):
+        self.GenerateObstacles()
+        self.SetFollowers()
+
+    def GenerateObstacles(self):
+        startingX = self.offset
+
+        for i in range(self.numberOfObstacles):
+            if self.laneType == Config.laneTypeWater:
+                newObstacle = Obstacle(startingX, self.y, self.speed, isLogLane=True)
             else:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd)
-                o.Show()
-                self.obstacles.append(o)
+                newObstacle = Obstacle(startingX, self.y, self.speed)
 
 
+            #u ovom bloku racuna X sledeceg obstaclea i po potrebi korektuje X trenutnog obstaclea :D
+            if self.speed < 0:
+                startingX = startingX + self.spacing + newObstacle.w
+            else:
+                startingX = startingX - self.spacing - newObstacle.w
+                # mora da se uzme u obzir i sirina novog obstacle-a jer je X koridinata sa leve strane objekta (a objekat treba da se pojavi sa leve strane ekrana)
+                newObstacle.SetPosition(startingX, self.y)
 
 
+            # ovo je da bi offset ostao izmedju prvog i poslednjeg auta u lejnu kada se prvi auto ponovo pojavi
+            if i == 0:
+                newObstacle.setLaneSpacing(self.spacing + self.offset)
+            else:
+                newObstacle.setLaneSpacing(self.spacing)
 
+            self.obstacles.append(newObstacle)
 
+    def SetFollowers(self):
+        #kad ima jedan obstacle, nece sam sebe pratiti zbog uslova u funkciji setObjectToFollow
+        for i in range(len(self.obstacles) - 1):
+            self.obstacles[i + 1].setObjectToFollow(self.obstacles[i])
+            self.obstacles[i + 1].Show()
 
-
-
+        self.obstacles[0].setObjectToFollow(self.obstacles[-1])
+        self.obstacles[0].Show()

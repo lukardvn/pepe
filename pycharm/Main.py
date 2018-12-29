@@ -17,20 +17,21 @@ class Frogger(QWidget):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
 
-        self.traka = Lane(0, 0, 0, 0, "")
-        self.traka2 = Lane(2, -3, 300, 1, "roadBottom")
-        self.traka3 = Lane(3, 5, 205, 2, "")
-        self.traka4 = Lane(1, 11, 550, 3, "")
-        self.traka5 = Lane(3, -4, 240, 4, "roadTop")
-        self.traka6 = Lane(0, 0, 0, 5, "")
-        self.traka7 = Lane(3,5.6,150,6,"voda")
-        self.traka8 = Lane(2,-3.2,200,7,"voda")
-        self.traka9 = Lane(3,2.5,250,8,"voda")
-        self.traka10 = Lane(2,-9.7,325,9,"voda")
-        self.traka11 = Lane(0,0,0,10,"")
-
-
-        #self.obj = Rectangle(50,120,310,50,"log_large_right.png")
+        self.traka1 =  Lane(0,    0,   0, Config.laneTypeSafety)
+        self.traka2 =  Lane(1,    4, 200, Config.laneTypeTrafficBottom)
+        self.traka3 =  Lane(3,   -5, 250, Config.laneTypeTraffic)
+        self.traka4 =  Lane(2, -7.5, 275, Config.laneTypeTraffic)
+        self.traka5 =  Lane(4,  4.7, 215, Config.laneTypeTraffic)
+        self.traka6 =  Lane(6,-3.75,  95, Config.laneTypeTrafficTop)
+        self.traka7 =  Lane(0,  5.6, 150, Config.laneTypeSafety)
+        self.traka8 =  Lane(2, -3.2, 225, Config.laneTypeWater)
+        self.traka9 =  Lane(4,  5.7, 250, Config.laneTypeWater)
+        self.traka10 = Lane(6, -9.7, 320, Config.laneTypeWater)
+        self.traka11 = Lane(3,  -11, 600, Config.laneTypeTraffic)
+        self.traka12 = Lane(12,   6, 155, Config.laneTypeWater)
+        self.traka13 = Lane(7,   -6, 235, Config.laneTypeWater)
+        self.traka14 = Lane(3,   -2, 850, Config.laneTypeWater)
+        self.traka15 = Lane(0,    0,   0, Config.laneTypeSafety)
 
 
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
