@@ -19,23 +19,25 @@ class Obstacle(Rectangle):
         else:
             if not isLogLane:
                 self.sprite, w = Obstacle.getRandomCar(s)
+                self.buffer = 150
             else:
                 self.sprite, w = Obstacle.getRandomLog(s)
+                self.buffer = 330
 
         self.speed = s
-        self.buffer = 70
         h = 50
         super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
         super().AddToLayer(layer)
 
     def update(self):
+        #print('pozvao')
         x,y = self.GetPosition()
 
         self.SetPosition(x + self.speed, self.y)
         if self.speed > 0 and self.x > Config.gridSize * Config.mapSize:
-            self.SetPosition(-self.w - self.buffer, y)
+            self.SetPosition(-self.buffer, y)
         elif self.speed < 0 and self.x + self.w < 0:
-            self.SetPosition(Config.gridSize * Config.mapSize + self.buffer, y)
+            self.SetPosition(Config.gridSize * Config.mapSize + 2*self.buffer - self.w, y)
 
     @staticmethod
     def getRandomSprite(availableSprites, speed):

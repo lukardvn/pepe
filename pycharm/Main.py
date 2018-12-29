@@ -23,10 +23,10 @@ class Frogger(QWidget):
         self.traka4 = Lane(1, 11, 550, 3, "")
         self.traka5 = Lane(3, -4, 240, 4, "roadTop")
         self.traka6 = Lane(0, 0, 0, 5, "")
-        self.traka7 = Lane(3,5.6,150,6,"voda")
-        self.traka8 = Lane(2,-3.2,200,7,"voda")
-        self.traka9 = Lane(3,2.5,250,8,"voda")
-        self.traka10 = Lane(2,-9.7,325,9,"voda")
+        self.traka7 = Lane(3,7,150,6,"voda")
+        self.traka8 = Lane(2,-4.5,200,7,"voda")
+        self.traka9 = Lane(3,3.8,250,8,"voda")
+        self.traka10 = Lane(2,-10,325,9,"voda")
         self.traka11 = Lane(0,0,0,10,"")
 
 
