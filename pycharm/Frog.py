@@ -24,6 +24,7 @@ class Frog(Rectangle):
         self.startX = x
         self.startY = y
         self.logSpeed = 0
+        self.lives = Config.frogLives
         self.sprite = self.spriteUpP1
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
@@ -45,6 +46,13 @@ class Frog(Rectangle):
             if self.CollidedWithObstacle():
                 self.Die()
 
+        lokvanj = self.CollidedWithLilypad()
+        if lokvanj != None:
+            lokvanj.usedByPlayer(self)
+
+    def CollidedWithLilypad(self):
+        return self.CollisionLayerSpecific(Config.layerLilypad, returnObject=True)
+
     def CollidedWithObstacle(self):
         return self.CollisionLayerSpecific(Config.layerPrepreke)
 
@@ -59,7 +67,10 @@ class Frog(Rectangle):
         return self.CollisionLayerSpecific(Config.layerWaterLane)
 
     def Die(self):
-        self.ReturnToStart()
+        self.lives -= 1
+
+        if self.lives > 0:
+            self.ReturnToStart()
 
     def ReturnToStart(self):
         self.SetPosition(self.startX * Config.gridSize, self.startY * Config.gridSize)
