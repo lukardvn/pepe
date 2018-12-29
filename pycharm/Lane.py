@@ -1,8 +1,7 @@
 from Rectangle import Rectangle
 from Config import Config
 from Obstacle import  Obstacle
-from enum import Enum
-import  random
+import random
 
 class Lane(Rectangle):
     def __init__(self, numOfObs, speed, spacing, typeOfLane):
@@ -14,7 +13,11 @@ class Lane(Rectangle):
         self.speed = speed
         self.spacing = spacing
         self.obstacles = []
-        self.offset = 285   #ovo bi trebalo da ide random
+
+        self.offset = random.randint(int(65 * (abs(speed) * 0.3)), int(305  * (abs(speed) * 0.1)))
+        if self.offset < 55:
+            self.offset = 55
+
         self.sprite = Config.laneTypeToLaneSprite[self.laneType]
 
         layer = Config.layerDefault
@@ -69,3 +72,43 @@ class Lane(Rectangle):
 
         self.obstacles[0].setObjectToFollow(self.obstacles[-1])
         self.obstacles[0].Show()
+
+    @staticmethod
+    def GenerateLane(availableConfigs, overrideLaneType=None):
+        selectedConfig = random.randint(0, len(availableConfigs) - 1)
+        config = availableConfigs[selectedConfig]
+
+        direction = pow(-1,random.randint(0, 9))
+
+        if overrideLaneType != None:
+            return Lane(config[0], config[1] * direction, config[2], overrideLaneType)
+        else:
+            return Lane(config[0],config[1] * direction, config[2],config[3])
+
+    @staticmethod
+    def GenerateSafetyLane():
+        return Lane(0,0,0,Config.laneTypeSafety)
+
+    @staticmethod
+    def GenerateEasyLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesEasyConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateMediumLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesMediumConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateHardLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesHardConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateEasyWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesEasyWaterConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateMediumWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesMediumWaterConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateHardWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesHardWaterConfig, overrideLaneType=overrideLaneType)
