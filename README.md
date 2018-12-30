@@ -4,12 +4,18 @@
 
 ## Pokretanje
 
+potrebno je imati instaliran PyQt5
+
 pokreni Main.py
 
 ## Kontrole
-| Taster(i) | Sta se desi |
+| Taster(i) | Šta se desi |
 | --------- | ----------- |
-| Strelice | Kontrole igraca 1 (zeleni) |
-| WASD | Kontrole igraca 2 (crveni) |
-| G | Ispisuje razdaljinu izmedju igraca (u pikselima) |
-| Space | Ispisuje da li su se dva igraca sudarila (Collision detection) |
+| Strelice | Kontrole igrača 1 (zeleni) |
+| WASD | Kontrole igrača 2 (crveni) |
+
+## Objašnjenje mulitplayera preko mreže
+![objasnjenje](https://github.com/lukardvn/pepe/blob/multiplayer/objasnjenjeMultiplayer.png)
+
+*dodatno: klijent nema nikakvu logiku, samo prikazuje objekte onako kako se nalaze na serveru. ne dešava se nikakva provera kolizije 
+niti bilo šta drugo (da li je žaba van ekrana ili ju je udario auto, to sve radi server). sve što klijent radi je da šalje input na server.

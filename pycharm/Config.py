@@ -3,6 +3,8 @@ class Config:
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     FPS = 30
     frogLives = 5
+    serverPort = 21241
+    bufferSize = 15000
                             #X, Y
     player1StartPosition = (10,14)
     player2StartPosition = (3,14)
@@ -125,3 +127,11 @@ class Config:
         (4, 8.23, 320, laneTypeWater),
         (5, 9.15, 260, laneTypeWater)
     ]
+
+    #kljucne reci za komunikaciju izmedju servera i klijenta
+    kreirajSveObjekteNaKlijentu = "INITOBJS"
+    updateSveObjekteNaKlijentu = "UPDATEOBJS"
+    inputKlijentaPrefix = "COMM:"
+    potvrdaKlijentaDaJeNapravioSveObjekte = "objsCreated"
+    serverWelcomeMsg = "welcome"
+    clientIsReady = "ready"

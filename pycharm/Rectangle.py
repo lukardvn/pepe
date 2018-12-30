@@ -4,11 +4,13 @@ from Config import Config
 from GameObject import GameObject
 
 class Rectangle(GameObject):
-
+    id = 1
     allRectangles = {}
 
     def __init__(self, x, y, w, h, sprite, layer=Config.layerDefault):
         super().__init__()
+        self.id = Rectangle.id #svaka rektangla dobija unikatan ID, ovo se jedino koristi za mulitplayer. Da mogu objekti da se sinhronizuju izmedju klijenta i servera
+        Rectangle.id += 1
         self.x = x
         self.y = y
         self.w = w
@@ -116,3 +118,6 @@ class Rectangle(GameObject):
 
     def GetSize(self):
         return (self.w, self.h)
+
+    def RemoveFromScreen(self):
+        self.label.setParent(None)

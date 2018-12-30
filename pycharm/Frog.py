@@ -26,6 +26,8 @@ class Frog(Rectangle):
         self.logSpeed = 0
         self.lives = Config.frogLives
         self.sprite = self.spriteUpP1
+        self.keyBoardInputEnabled = True #koristi se za mulitplejer (tad se postavi na False), da ne moze drugi igrac da se kontrolise kad je multiplayer mod
+
         if isPlayerTwo:
             self.sprite = self.spriteUpP2
 
@@ -155,21 +157,22 @@ class Frog(Rectangle):
             self.SetPosition(newX, self.y)
 
     def KeyPress(self, key):
-        if self.isPlayerTwo:
-            if key == Qt.Key_D:
-                self.GoRight()
-            elif key == Qt.Key_S:
-                self.GoDown()
-            elif key == Qt.Key_W:
-                self.GoUp()
-            elif key == Qt.Key_A:
-                self.GoLeft()
-        else:
-            if key == Qt.Key_Right:
-                self.GoRight()
-            elif key == Qt.Key_Down:
-                self.GoDown()
-            elif key == Qt.Key_Up:
-                self.GoUp()
-            elif key == Qt.Key_Left:
-                self.GoLeft()
+        if self.keyBoardInputEnabled:
+            if self.isPlayerTwo:
+                if key == Qt.Key_D:
+                    self.GoRight()
+                elif key == Qt.Key_S:
+                    self.GoDown()
+                elif key == Qt.Key_W:
+                    self.GoUp()
+                elif key == Qt.Key_A:
+                    self.GoLeft()
+            else:
+                if key == Qt.Key_Right:
+                    self.GoRight()
+                elif key == Qt.Key_Down:
+                    self.GoDown()
+                elif key == Qt.Key_Up:
+                    self.GoUp()
+                elif key == Qt.Key_Left:
+                    self.GoLeft()
