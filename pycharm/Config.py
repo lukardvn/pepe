@@ -3,6 +3,7 @@ class Config:
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     FPS = 30
     frogLives = 5
+    serverAddress = "127.0.0.1"
     serverPort = 21241
     bufferSize = 15000
                             #X, Y

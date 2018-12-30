@@ -54,7 +54,7 @@ class Frogger(QWidget):
         self.HostServer(Config.serverPort)
 
     def MainMenuJoinClick(self):
-        self.JoinServer('127.0.0.1', Config.serverPort)
+        self.JoinServer(Config.serverAddress, Config.serverPort)
 
     def CreatePlayers(self, TwoPlayers=False):
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
