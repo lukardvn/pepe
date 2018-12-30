@@ -73,6 +73,10 @@ class Lane(Rectangle):
         self.obstacles[0].Show()
 
     @staticmethod
+    def ResetLaneStartingIndex():
+        Config.newLaneYIndex = 0
+
+    @staticmethod
     def GenerateLane(availableConfigs, overrideLaneType=None):
         selectedConfig = random.randint(0, len(availableConfigs) - 1)
         config = availableConfigs[selectedConfig]

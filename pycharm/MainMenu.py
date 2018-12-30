@@ -16,6 +16,7 @@ class Meni(QWidget):
         pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bgImg.show()
 
         self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, funcHostGame, funcJoinGame)
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
@@ -65,8 +66,11 @@ class Meni(QWidget):
         if onClick != None:
             btn.clicked.connect(onClick)
         btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
         if hide:
             btn.hide()
+        else:
+            btn.show()
 
         self.allWidgets.append(btn)
         return btn
@@ -80,6 +84,9 @@ class Meni(QWidget):
         lbl.setText(text)
         if hide:
             lbl.hide()
+        else:
+            lbl.show()
+
         self.allWidgets.append(lbl)
         return lbl
 
@@ -94,6 +101,9 @@ class Meni(QWidget):
         # Widgets.append(player1NameTxt)
         if hide:
             editLine.hide()
+        else:
+            editLine.show()
+
         self.allWidgets.append(editLine)
         return editLine
 

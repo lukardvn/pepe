@@ -116,6 +116,10 @@ class Rectangle(GameObject):
         self.h = h
         self.label.setGeometry(self.x, self.y, self.w, self.h)
 
+    @staticmethod
+    def ResetId():
+        Rectangle.id = 1
+
     def GetSize(self):
         return (self.w, self.h)
 

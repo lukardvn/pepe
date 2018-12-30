@@ -80,8 +80,12 @@ class Client(QtCore.QThread):
 
     def receive(self, conn):
         while self.radi:
-            data = conn.recv(Config.bufferSize)
-            self.receiveCallBack.emit(data.decode('utf-8'))
+            try:
+                data = conn.recv(Config.bufferSize)
+                self.receiveCallBack.emit(data.decode('utf-8'))
+            except:
+                self.receiveCallBack.emit("CONN_ERROR")
+                self.radi = False
 
     def send(self, conn):
         while self.radi:
