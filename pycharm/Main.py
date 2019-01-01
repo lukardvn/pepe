@@ -1,7 +1,9 @@
 import sys
+import PyQt5
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QApplication
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from key_notifier import KeyNotifier
 
@@ -14,6 +16,8 @@ from Lilypad import Lilypad
 from Rectangle import Rectangle
 
 from MainMenu import Meni
+
+
 class Frogger(QWidget):
     def __init__(self):
         super().__init__()
@@ -33,9 +37,18 @@ class Frogger(QWidget):
     def __init_ui__(self):
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode)
         self.setWindowTitle('Frogger')
+        self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
+        self.FixWindowSize()
         self.show()
         self.startThreadForUpdatingObjects()
+
+    #obicna funkcija za fiksiranje velicine prozora
+    def FixWindowSize(self):
+        self.setMinimumHeight(Config.mapSize * Config.gridSize)
+        self.setMinimumWidth(Config.mapSize * Config.gridSize)
+        self.setMaximumHeight(Config.mapSize * Config.gridSize)
+        self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def SinglePlayerMode(self):
         self.Menu.HideMainMenu()
