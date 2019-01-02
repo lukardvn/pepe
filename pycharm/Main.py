@@ -26,6 +26,7 @@ class Frogger(QWidget):
         self.igrac1 = None
         self.igrac2 = None
         self.Menu = None #glavni meni
+        self.GameOverBrojac = 0
 
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
@@ -41,7 +42,7 @@ class Frogger(QWidget):
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
         self.show()
-        self.startThreadForUpdatingObjects()
+        #self.startThreadForUpdatingObjects()
 
     #obicna funkcija za fiksiranje velicine prozora
     def FixWindowSize(self):
@@ -61,9 +62,9 @@ class Frogger(QWidget):
         self.CreatePlayers(TwoPlayers=True)
 
     def CreatePlayers(self, TwoPlayers=False):
-        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1])
+        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck)
         if TwoPlayers:
-            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], isPlayerTwo=True)
+            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, isPlayerTwo=True)
 
     def DisplayMap(self):
         self.Map.append(Lane.GenerateSafetyLane())
@@ -82,6 +83,62 @@ class Frogger(QWidget):
         self.Map.append(Lane.GenerateHardWaterLane())
         self.Map.append(Lane.GenerateFinalLane())
 
+        self.startThreadForUpdatingObjects()
+
+    def GameOverCheck(self, isPlayerTwo):
+        self.GameOverBrojac += 1
+        if self.igrac1 != None and self.igrac2 != None:
+            if self.GameOverBrojac == 1:
+                if isPlayerTwo:
+                    self.igrac2.Hide()
+                    self.igrac2 = None
+                else:
+                    self.igrac1.Hide()
+                    self.igrac1 = None
+        elif self.igrac1 != None:
+            if self.GameOverBrojac == 1:
+                self.GameOver(False)
+            elif self.GameOverBrojac == 2:
+                self.GameOver(True)
+        elif self.igrac2 != None:
+            if self.GameOverBrojac == 2:
+                self.GameOver(True)
+
+    def GameOver(self, isPlayerTwo):
+        self.stopThreadForUpdatingObjects()
+        self.DeleteMap(isPlayerTwo)
+        self.Menu.ShowMainMenu()
+        Config.newLaneYIndex = 0
+        self.GameOverBrojac = 0
+
+    def DeleteMap(self, TwoPlayers):
+        try:
+            self.igrac1.Hide()
+            self.igrac1 = None
+        except:
+            print('vec postavljen na None')
+
+        if TwoPlayers:
+            try:
+                self.igrac2.Hide()
+                self.igrac2 = None
+            except:
+                print('vec postavljen na None')
+
+        for lane in self.Map:
+            for obs in lane.obstacles:
+                obs.Hide()
+            lane.obstacles.clear()
+            lane.Hide()
+
+        for rect in Rectangle.allRectangles[Config.layerLilypad]:
+            rect.Hide()
+
+        for rect in Rectangle.allRectangles[Config.layerZabe]:
+            rect.Hide()
+
+        self.Map.clear()
+
     def DisplayTestMap(self):
         self.Map.append(Lane.GenerateSafetyLane())
         self.Map.append(Lane.GenerateEasyLane())
@@ -96,7 +153,6 @@ class Frogger(QWidget):
     def keyPressEvent(self, event):
         if not event.isAutoRepeat():
             self.key_notifier.add_key(event.key())
-
 
     def __update_position__(self, key):
         if self.igrac1 != None:
@@ -113,9 +169,13 @@ class Frogger(QWidget):
         self.updaterGameObjekataThread.nekiObjekat.connect(self.updateAllGameObjects)
         self.updaterGameObjekataThread.start()
 
+    def stopThreadForUpdatingObjects(self):
+        self.updaterGameObjekataThread.updaterThreadWork = False
+
     def updateAllGameObjects(self, dummy):
         for gameObject in GameObject.allGameObjects:
             gameObject.update()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

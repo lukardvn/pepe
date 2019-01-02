@@ -98,6 +98,10 @@ class Meni(QWidget):
             widget.hide()
         self.bgImg.hide()
 
+    def ShowMainMenu(self):
+        self.OptionsSubMenuHide()
+        self.bgImg.show()
+
     def exitClicked(self):
         sys.exit(0)
 

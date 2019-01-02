@@ -1,5 +1,5 @@
 from Rectangle import Rectangle
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, QThread
 
 from Config import Config
 import time
@@ -20,7 +20,7 @@ class Frog(Rectangle):
     spriteRightP2 = 'frog_sprite_player2r_50.png'
     spriteDownP2 = 'frog_sprite_player2d_50.png'
 
-    def __init__(self, x, y, isPlayerTwo = False):
+    def __init__(self, x, y, funkcijaZaGejmover , isPlayerTwo = False):
         self.startX = x
         self.startY = y
         self.logSpeed = 0
@@ -31,6 +31,7 @@ class Frog(Rectangle):
 
         super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, layer=Config.layerZabe)
         self.isPlayerTwo = isPlayerTwo
+        self.GameOver = funkcijaZaGejmover
         self.Show()
 
     def update(self):
@@ -69,6 +70,9 @@ class Frog(Rectangle):
 
     def Die(self):
         self.lives -= 1
+        if self.lives == 0:
+            self.ReturnToStart()
+            self.GameOver(self.isPlayerTwo)
 
         if self.lives > 0:
             self.ReturnToStart()
