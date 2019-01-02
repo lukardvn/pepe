@@ -49,9 +49,9 @@ class Frogger(QWidget):
 
     #obicna funkcija za fiksiranje velicine prozora
     def FixWindowSize(self):
-        self.setMinimumHeight(Config.mapSize * Config.gridSize)
+        self.setMinimumHeight((Config.mapSize+1) * Config.gridSize)
         self.setMinimumWidth(Config.mapSize * Config.gridSize)
-        self.setMaximumHeight(Config.mapSize * Config.gridSize)
+        self.setMaximumHeight((Config.mapSize+1) * Config.gridSize)
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def SinglePlayerMode(self):
@@ -92,7 +92,7 @@ class Frogger(QWidget):
         self.startThreadForUpdatingObjects()
 
     def GameOverCheck(self, isPlayerTwo):
-        #fja koja se poziva prilikom izgubljenog zivota, prosledjuje se igracima kroz konstruktor
+        #fja koja se poziva kada igrac ima 0 zivota, prosledjuje se igracima kroz konstruktor
         self.GameOverBrojac += 1
         if self.igrac1 != None and self.igrac2 != None:
             if self.GameOverBrojac == 1:
@@ -112,7 +112,7 @@ class Frogger(QWidget):
                 self.GameOver(True)
 
     def GameOver(self, isPlayerTwo):
-        #fja koja se poziva kad su igraci ostali bez zivota
+        #fja koja se poziva kad su svi igraci igraci ostali bez zivota
         self.stopThreadForUpdatingObjects()
         self.DeleteMap(isPlayerTwo)
         self.Menu.ShowMainMenu()
@@ -233,7 +233,7 @@ class Frogger(QWidget):
     def GenerateLanes(self):
         # 13 lejnova, fja u kojoj se odlucuje tezina po levelima, moze da se menja po volji
         nizTezine = []
-        if self.Level < 5:
+        if self.Level <= 5:
             nizTezine.append('s')   #s -> napravi safe lane
             nizTezine.append('s')
             nizTezine.append('s')
@@ -247,7 +247,7 @@ class Frogger(QWidget):
             nizTezine.append('m')   #m -> napravi medium lane
             nizTezine.append('m')
             nizTezine.append('m')   #h -> napravi hard lane
-        elif self.Level > 5 and self.Level < 10:
+        elif self.Level > 5 and self.Level <= 10:
             nizTezine.append('s')
             nizTezine.append('e')
             nizTezine.append('e')
@@ -261,7 +261,7 @@ class Frogger(QWidget):
             nizTezine.append('m')
             nizTezine.append('m')
             nizTezine.append('h')
-        elif self.Level > 10 and self.Level < 15:
+        elif self.Level > 10 and self.Level <= 15:
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
@@ -275,7 +275,7 @@ class Frogger(QWidget):
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
-        elif self.Level > 15 and self.Level < 20:
+        elif self.Level > 15 and self.Level <= 20:
             nizTezine.append('m')
             nizTezine.append('m')
             nizTezine.append('m')

@@ -70,6 +70,8 @@ class Frog(Rectangle):
 
     def Die(self):
         self.lives -= 1
+        #print(self.lives)
+
         if self.lives == 0:
             self.ReturnToStart()
             self.GameOver(self.isPlayerTwo)
