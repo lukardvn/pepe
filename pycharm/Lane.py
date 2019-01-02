@@ -113,7 +113,7 @@ class Lane(Rectangle):
         return Lane.GenerateLane(Config.lanesHardWaterConfig, overrideLaneType=overrideLaneType)
 
     @staticmethod
-    def GenerateFinalLane(lilyPadPattern = Config.lilypadPatternBO5Standard, randomPatternBO5=False):
+    def GenerateFinalLane(funkcijaZaLilypad, lilyPadPattern = Config.lilypadPatternBO5Standard, randomPatternBO5=False):
         l = Lane(0,0,0, Config.laneTypeFinal) #ovo se poziva samo da bi se inkrementirao indeks za lejn i dobila Y pozicija
         counter = 0
 
@@ -124,7 +124,7 @@ class Lane(Rectangle):
             if char == "0":
                 Bush(counter * Config.gridSize, l.y, 50, 50)
             elif char == "1":
-                Lilypad(counter * Config.gridSize, l.y)
+                Lilypad(counter * Config.gridSize, l.y, funkcijaZaLilypad)
             counter += 1
 
         if counter < Config.mapSize - 1:

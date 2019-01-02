@@ -2,10 +2,12 @@ from Config import Config
 from Rectangle import Rectangle
 
 class Lilypad(Rectangle):
-    def __init__(self, x,  y):
+    def __init__(self, x,  y, funkcijaZaLilypad):
         super().__init__(x, y, 50, 50, 'lilypadV2.png', Config.layerLilypad)
         self.Show()
         self.lastPlayerOnLilypad = None
+        self.funkcijaZaLilypad = funkcijaZaLilypad
+        self.brojac = 0
 
     def usedByPlayer(self, player):
         self.lastPlayerOnLilypad = player
@@ -17,3 +19,11 @@ class Lilypad(Rectangle):
         else:
             self.ChangeSprite('lilypadV2_player1.png')
             player.ReturnToStart()
+
+        for rect in Rectangle.allRectangles[Config.layerLilypad]:
+            if rect.lastPlayerOnLilypad != None:
+                self.brojac += 1
+
+        if self.brojac == 5:
+            self.funkcijaZaLilypad()
+            self.brojac = 0

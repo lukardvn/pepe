@@ -14,6 +14,7 @@ from Lane import Lane
 import datetime
 from Lilypad import Lilypad
 from Rectangle import Rectangle
+from random import shuffle, randrange
 
 from MainMenu import Meni
 
@@ -26,7 +27,9 @@ class Frogger(QWidget):
         self.igrac1 = None
         self.igrac2 = None
         self.Menu = None #glavni meni
-        self.GameOverBrojac = 0
+        self.GameOverBrojac = 0 # za zivote, ako je 2PlayerMode, kad igrac izgubi sve zivote povecava brojac za 1, kad oba izgube sve zivote, brojac je 2 i tad je gameOver
+        # ako je SinglePlayer mod onda je gameOver ako je brojac 1
+        self.Level = 1 # za levele
 
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
@@ -67,25 +70,29 @@ class Frogger(QWidget):
             self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, isPlayerTwo=True)
 
     def DisplayMap(self):
-        self.Map.append(Lane.GenerateSafetyLane())
-        self.Map.append(Lane.GenerateEasyLane(Config.laneTypeTrafficBottom))
-        self.Map.append(Lane.GenerateMediumLane())
-        self.Map.append(Lane.GenerateMediumLane())
-        self.Map.append(Lane.GenerateMediumLane())
-        self.Map.append(Lane.GenerateHardLane(Config.laneTypeTrafficTop))
-        self.Map.append(Lane.GenerateSafetyLane())
-        self.Map.append(Lane.GenerateEasyWaterLane())
-        self.Map.append(Lane.GenerateMediumWaterLane())
-        self.Map.append(Lane.GenerateMediumWaterLane())
-        self.Map.append(Lane.GenerateHardLane())
-        self.Map.append(Lane.GenerateMediumWaterLane())
-        self.Map.append(Lane.GenerateHardWaterLane())
-        self.Map.append(Lane.GenerateHardWaterLane())
-        self.Map.append(Lane.GenerateFinalLane())
+        self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn
+        self.GenerateLanes()    #fja da generise lejnove
+        #STARO RESENJE
+        #self.Map.append(Lane.GenerateEasyLane(Config.laneTypeTrafficBottom))
+        #self.Map.append(Lane.GenerateMediumLane())
+        #self.Map.append(Lane.GenerateMediumLane())
+        #self.Map.append(Lane.GenerateMediumLane())
+        #self.Map.append(Lane.GenerateHardLane(Config.laneTypeTrafficTop))
+        #self.Map.append(Lane.GenerateSafetyLane())
+        #self.Map.append(Lane.GenerateEasyWaterLane())
+        #self.Map.append(Lane.GenerateMediumWaterLane())
+        #self.Map.append(Lane.GenerateMediumWaterLane())
+        #self.Map.append(Lane.GenerateHardLane())
+        #self.Map.append(Lane.GenerateMediumWaterLane())
+        #self.Map.append(Lane.GenerateHardWaterLane())
+        #self.Map.append(Lane.GenerateHardWaterLane())
+        #################################
+        self.Map.append(Lane.GenerateFinalLane(self.LevelPassed)) # zadnji je uvek finalLane
 
         self.startThreadForUpdatingObjects()
 
     def GameOverCheck(self, isPlayerTwo):
+        #fja koja se poziva prilikom izgubljenog zivota, prosledjuje se igracima kroz konstruktor
         self.GameOverBrojac += 1
         if self.igrac1 != None and self.igrac2 != None:
             if self.GameOverBrojac == 1:
@@ -105,11 +112,35 @@ class Frogger(QWidget):
                 self.GameOver(True)
 
     def GameOver(self, isPlayerTwo):
+        #fja koja se poziva kad su igraci ostali bez zivota
         self.stopThreadForUpdatingObjects()
         self.DeleteMap(isPlayerTwo)
         self.Menu.ShowMainMenu()
         Config.newLaneYIndex = 0
         self.GameOverBrojac = 0
+        self.Level = 1
+
+    def LevelPassed(self):
+        #fja koja se poziva kad su svih 5 Lilypada popunjena, prosledjuje se u konstruktoru, prvo finalLejnu pa samim objektima
+        self.stopThreadForUpdatingObjects()
+        self.Level += 1
+        #print(self.Level)
+        Config.newLaneYIndex = 0
+        self.GameOverBrojac = 0
+        if self.igrac1 != None and self.igrac2 != None:
+            self.DeleteMap(True)
+            self.DisplayMap()
+            self.CreatePlayers(TwoPlayers=True)
+        elif self.igrac1 != None:
+            self.DeleteMap(False)
+            self.DisplayMap()
+            self.CreatePlayers()
+        elif self.igrac2 != None:
+            self.DeleteMap(True)
+            self.DisplayMap()
+            self.CreatePlayers(TwoPlayers=True)
+            self.igrac1.Hide()
+            self.igrac1 = None
 
     def DeleteMap(self, TwoPlayers):
         try:
@@ -133,9 +164,11 @@ class Frogger(QWidget):
 
         for rect in Rectangle.allRectangles[Config.layerLilypad]:
             rect.Hide()
+        Rectangle.allRectangles[Config.layerLilypad].clear()
 
         for rect in Rectangle.allRectangles[Config.layerZabe]:
             rect.Hide()
+        Rectangle.allRectangles[Config.layerZabe].clear()
 
         self.Map.clear()
 
@@ -176,6 +209,103 @@ class Frogger(QWidget):
         for gameObject in GameObject.allGameObjects:
             gameObject.update()
 
+    def createLanes(self, niz):
+        #funkcija koja generise lejnove u zavisnosti od prosledjenog niza i karaktera u njemu
+        for letter in niz:
+            if letter == 's':   #safe lane
+                self.Map.append(Lane.GenerateSafetyLane())
+            elif letter == 'e': #easy lane, if generated -1 -> easyWaterLane if 1 easyTrafficLane, isto vazi za ostale samo se menja tezina s,m,h...
+                if [-1, 1][randrange(2)] == -1:
+                    self.Map.append(Lane.GenerateEasyWaterLane())
+                else:
+                    self.Map.append(Lane.GenerateEasyLane())
+            elif letter == 'm':
+                if [-1, 1][randrange(2)] == -1:
+                    self.Map.append(Lane.GenerateMediumWaterLane())
+                else:
+                    self.Map.append(Lane.GenerateMediumLane())
+            elif letter == 'h':
+                if [-1, 1][randrange(2)] == -1:
+                    self.Map.append(Lane.GenerateHardWaterLane())
+                else:
+                    self.Map.append(Lane.GenerateHardLane())
+
+    def GenerateLanes(self):
+        # 13 lejnova, fja u kojoj se odlucuje tezina po levelima, moze da se menja po volji
+        nizTezine = []
+        if self.Level < 5:
+            nizTezine.append('s')   #s -> napravi safe lane
+            nizTezine.append('s')
+            nizTezine.append('s')
+            nizTezine.append('e')
+            nizTezine.append('e')   #e -> napravi easy lane
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('m')   #m -> napravi medium lane
+            nizTezine.append('m')
+            nizTezine.append('m')   #h -> napravi hard lane
+        elif self.Level > 5 and self.Level < 10:
+            nizTezine.append('s')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('h')
+        elif self.Level > 10 and self.Level < 15:
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+        elif self.Level > 15 and self.Level < 20:
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+        elif self.Level > 20:
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+
+        shuffle(nizTezine)  #permutuj niz da lejnovi budu random
+        self.createLanes(nizTezine)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
