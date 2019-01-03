@@ -71,22 +71,9 @@ class Frogger(QWidget):
 
     def DisplayMap(self):
         self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn
-        self.GenerateLanes()    #fja da generise lejnove
-        #STARO RESENJE
-        #self.Map.append(Lane.GenerateEasyLane(Config.laneTypeTrafficBottom))
-        #self.Map.append(Lane.GenerateMediumLane())
-        #self.Map.append(Lane.GenerateMediumLane())
-        #self.Map.append(Lane.GenerateMediumLane())
-        #self.Map.append(Lane.GenerateHardLane(Config.laneTypeTrafficTop))
-        #self.Map.append(Lane.GenerateSafetyLane())
-        #self.Map.append(Lane.GenerateEasyWaterLane())
-        #self.Map.append(Lane.GenerateMediumWaterLane())
-        #self.Map.append(Lane.GenerateMediumWaterLane())
-        #self.Map.append(Lane.GenerateHardLane())
-        #self.Map.append(Lane.GenerateMediumWaterLane())
-        #self.Map.append(Lane.GenerateHardWaterLane())
-        #self.Map.append(Lane.GenerateHardWaterLane())
-        #################################
+        self.GenerateLanes('Road')    #fja da generise lejnove za put
+        self.Map.append(Lane.GenerateSafetyLane())
+        self.GenerateLanes('Water')   #fja da generise lejnove za reku
         self.Map.append(Lane.GenerateFinalLane(self.LevelPassed)) # zadnji je uvek finalLane
 
         self.startThreadForUpdatingObjects()
@@ -209,103 +196,125 @@ class Frogger(QWidget):
         for gameObject in GameObject.allGameObjects:
             gameObject.update()
 
-    def createLanes(self, niz):
+    def createLanes(self, niz, type):
         #funkcija koja generise lejnove u zavisnosti od prosledjenog niza i karaktera u njemu
-        for letter in niz:
-            if letter == 's':   #safe lane
-                self.Map.append(Lane.GenerateSafetyLane())
-            elif letter == 'e': #easy lane, if generated -1 -> easyWaterLane if 1 easyTrafficLane, isto vazi za ostale samo se menja tezina s,m,h...
-                if [-1, 1][randrange(2)] == -1:
-                    self.Map.append(Lane.GenerateEasyWaterLane())
-                else:
+        if type == 'Road':
+            for i in range(len(niz)):
+                if niz[i] == 'e':
                     self.Map.append(Lane.GenerateEasyLane())
-            elif letter == 'm':
-                if [-1, 1][randrange(2)] == -1:
-                    self.Map.append(Lane.GenerateMediumWaterLane())
-                else:
+                elif niz[i] == 'm':
                     self.Map.append(Lane.GenerateMediumLane())
-            elif letter == 'h':
-                if [-1, 1][randrange(2)] == -1:
-                    self.Map.append(Lane.GenerateHardWaterLane())
-                else:
+                elif niz[i] == 'h':
                     self.Map.append(Lane.GenerateHardLane())
+        elif type == 'Water':
+            for i in range(len(niz)):
+                if niz[i] == 'e':
+                    self.Map.append(Lane.GenerateEasyWaterLane())
+                elif niz[i] == 'm':
+                    self.Map.append(Lane.GenerateMediumWaterLane())
+                elif niz[i] == 'h':
+                    self.Map.append(Lane.GenerateHardWaterLane())
+        elif type == 'Random':
+            for letter in niz:
+                if letter == 's':  # safe lane
+                    self.Map.append(Lane.GenerateSafetyLane())
+                elif letter == 'e':  # easy lane, if generated -1 -> easyWaterLane if 1 easyTrafficLane, isto vazi za ostale samo se menja tezina s,m,h...
+                    if [-1, 1][randrange(2)] == -1:
+                        self.Map.append(Lane.GenerateEasyWaterLane())
+                    else:
+                        self.Map.append(Lane.GenerateEasyLane())
+                elif letter == 'm':
+                    if [-1, 1][randrange(2)] == -1:
+                        self.Map.append(Lane.GenerateMediumWaterLane())
+                    else:
+                        self.Map.append(Lane.GenerateMediumLane())
+                elif letter == 'h':
+                    if [-1, 1][randrange(2)] == -1:
+                        self.Map.append(Lane.GenerateHardWaterLane())
+                    else:
+                        self.Map.append(Lane.GenerateHardLane())
 
-    def GenerateLanes(self):
-        # 13 lejnova, fja u kojoj se odlucuje tezina po levelima, moze da se menja po volji
+    def GenerateLanes(self, type):
+        # 6 lejnova, fja u kojoj se odlucuje tezina po levelima, moze da se menja po volji
         nizTezine = []
-        if self.Level <= 5:
-            nizTezine.append('s')   #s -> napravi safe lane
-            nizTezine.append('s')
-            nizTezine.append('s')
-            nizTezine.append('e')
-            nizTezine.append('e')   #e -> napravi easy lane
+        if self.Level <= 2:
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
-            nizTezine.append('m')   #m -> napravi medium lane
-            nizTezine.append('m')
-            nizTezine.append('m')   #h -> napravi hard lane
-        elif self.Level > 5 and self.Level <= 10:
-            nizTezine.append('s')
+            nizTezine.append('e')
+        elif self.Level > 2 and self.Level <= 4:
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('h')
-        elif self.Level > 10 and self.Level <= 15:
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
+            type = 'Random'
+        elif self.Level > 4 and self.Level <= 6:
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('e')
             nizTezine.append('m')
             nizTezine.append('m')
             nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('m')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-        elif self.Level > 15 and self.Level <= 20:
+        elif self.Level > 6 and self.Level <= 8:
+            nizTezine.append('e')
+            nizTezine.append('e')
+            nizTezine.append('e')
             nizTezine.append('m')
             nizTezine.append('m')
             nizTezine.append('m')
+            type = 'Random'
+        elif self.Level > 8 and self.Level <= 10:
             nizTezine.append('m')
             nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+        elif self.Level > 10 and self.Level <= 12:
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            type = 'Random'
+        elif self.Level > 12 and self.Level <= 14:
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+        elif self.Level > 12 and self.Level <= 14:
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('m')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            nizTezine.append('h')
+            type = 'Random'
+        elif self.Level > 14 and self.Level <= 16:
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-        elif self.Level > 20:
-            nizTezine.append('h')
+        elif self.Level > 16:
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
             nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
-            nizTezine.append('h')
+            type = 'Random'
 
         shuffle(nizTezine)  #permutuj niz da lejnovi budu random
-        self.createLanes(nizTezine)
+        self.createLanes(nizTezine, type)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
