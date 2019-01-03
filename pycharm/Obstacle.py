@@ -6,7 +6,7 @@ import random
 class Obstacle(Rectangle):
     speed = 0
 
-    def __init__(self, x, y, s, isLogLane=False, sprite=None, width=None):
+    def __init__(self, x, y, s, isLogLane=False, sprite=None, width=None, toFollow=None, laneSpacing=0):
         self.sprite = ''
         layer = Config.layerDefault
 
@@ -24,20 +24,58 @@ class Obstacle(Rectangle):
                 self.sprite, w = Obstacle.getRandomLog(s)
                 self.buffer = 330
 
+        self.laneSpacing = laneSpacing #spejsing u lejnu u kom se ovaj objekat nalazi
+        self.following = toFollow #objekat iza kog se krece trenutni objekat
+
         self.speed = s
         h = 50
         super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
         super().AddToLayer(layer)
 
-    def update(self):
-        #print('pozvao')
-        x,y = self.GetPosition()
+    def setLaneSpacing(self, spacing):
+        self.laneSpacing = spacing
 
-        self.SetPosition(x + self.speed, self.y)
-        if self.speed > 0 and self.x > Config.gridSize * Config.mapSize:
-            self.SetPosition(-self.buffer, y)
-        elif self.speed < 0 and self.x + self.w < 0:
-            self.SetPosition(Config.gridSize * Config.mapSize + 2*self.buffer - self.w, y)
+    def setObjectToFollow(self, obstacle):
+        if self != obstacle:
+            self.following = obstacle
+
+    def update(self):
+        self.MoveObstacle()
+
+        if self.speed > 0:
+            self.CheckIfBehindRightEdge()
+        else:
+            self.CheckIfBehindLeftEdge()
+
+    def MoveObstacle(self):
+        if self.speed != 0:
+            self.SetPosition(self.x + self.speed, self.y)  # prvo pomerimo objekat pa onda proverimo da li je izasao iz ekrana
+
+    def CheckIfBehindRightEdge(self):
+        if self.x > Config.gridSize * Config.mapSize + self.buffer: #ako se obstacle krece u desno
+            if self.following != None:  #ovde ce uci kada u lejnu ima vise od 2 obstacle-a
+                positionXBehindIdol = self.following.x - self.laneSpacing - self.w #izracuna se nova kordinata X (iza objekta koji se prati). Treba da bude van ekrana (sa leve strane)
+
+                if positionXBehindIdol > -self.w: #provera da li je ta kordinata unutar vidljivog dela ekrana, ako jeste onda se postavi da bude van ekrana
+                    positionXBehindIdol = -1 * (self.w + 15)
+
+                self.SetPosition(positionXBehindIdol, self.y)
+            else:
+                #znaci da u laneu ima samo jedan obstacle
+                self.SetPosition(-self.w, self.y)
+
+    def CheckIfBehindLeftEdge(self):
+        if self.x + self.w + self.buffer < 0:
+            if self.following != None: #ovde ce uci kada u lejnu ima vise od 2 obstacle-a
+                positionXBehindIdol = self.following.x + self.following.w + self.laneSpacing #izracuna se nova kordinata X (iza objekta koji se prati). Treba da bude van ekrana (sa desne strane)
+
+                if positionXBehindIdol < Config.mapSize * Config.gridSize: #ako je nova kordinata na vidljivo delu (nije dovoljno velika) onda se postavi da bude van ekrana
+                    positionXBehindIdol = Config.mapSize * Config.gridSize + 15
+
+                self.SetPosition(positionXBehindIdol, self.y)
+            else:
+                # znaci da u laneu ima samo jedan obstacle
+                self.SetPosition(Config.gridSize * Config.mapSize, self.y)
 
     @staticmethod
     def getRandomSprite(availableSprites, speed):
@@ -61,28 +99,3 @@ class Obstacle(Rectangle):
     @staticmethod
     def getRandomLog(speed):
         return Obstacle.getRandomSprite(Config.availableLogs, speed)
-
-    @staticmethod
-    def getSmallLog(x,y, speed):
-        sprite = "log_small_left.png"
-        if speed > 0:
-            sprite = "log_small_right.png"
-
-        return Obstacle(x,y,speed, sprite=sprite,width=120)
-
-    @staticmethod
-    def getMediumLog(x, y, speed):
-        sprite = "log_medium_left.png"
-        if speed > 0:
-            sprite = "log_medium_right.png"
-
-        return Obstacle(x, y, speed, sprite=sprite, width=158)
-
-    @staticmethod
-    def getLargeLog(x, y, speed):
-        sprite = "log_large_left.png"
-        if speed > 0:
-            sprite = "log_large_right.png"
-
-        return Obstacle(x, y, speed, sprite=sprite, width=310)
-

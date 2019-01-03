@@ -1,81 +1,133 @@
 from Rectangle import Rectangle
 from Config import Config
 from Obstacle import  Obstacle
-from enum import Enum
-import  random
+import random
+from Lilypad import Lilypad
+from Bush import Bush
 
 class Lane(Rectangle):
-    #n je broj kola u traci,spd->brzina,spc->razmak izmedju njih,ostalo sve isto i type je tip povrsine
-    def __init__(self,numOfObs,speed,spacing,index,type):
+    def __init__(self, numOfObs, speed, spacing, typeOfLane):
+        self.laneType = typeOfLane
+        self.numberOfObstacles = numOfObs
+        self.speed = speed
+        self.spacing = spacing
+        self.obstacles = []
 
-        Config.yLane = (Config.mapSize - index - 1) * Config.gridSize
-        Config.indexHelper = index
+        self.offset = random.randint(int(65 * (abs(speed) * 0.3)), int(305  * (abs(speed) * 0.1)))
+        if self.offset < 55:
+            self.offset = 55
+
+        self.sprite = Config.laneTypeToLaneSprite[self.laneType]
+
         layer = Config.layerDefault
-
-        #print(self.yLane)
-        if numOfObs == 0:
-            type = "safe"
-            #print(type)
-        #print(str(self.yLane))
-        if(type=="voda"):
-            self.sprite=Config.water
+        if self.laneType == Config.laneTypeWater:
             layer = Config.layerWaterLane
-        elif(type=="safe"):
-            self.sprite=Config.safeLane
-        elif(type=="roadTop"):
-            self.sprite=Config.trafficTop
-        elif(type=="roadBottom"):
-            self.sprite=Config.trafficBottom
-        else:
-            self.sprite=Config.traffic
 
+        laneYCoord = (Config.mapSize - Config.newLaneYIndex - 1) * Config.gridSize
+        Config.newLaneYIndex += 1
 
+        super().__init__(0, laneYCoord, Config.gridSize*Config.mapSize,  Config.gridSize, self.sprite, layer=layer)
 
-        super().__init__(0, Config.yLane,Config.gridSize*Config.mapSize,  Config.gridSize,self.sprite, layer=layer)
-
-        self.n=numOfObs
-        self.spd=speed
-        self.spc=spacing
-        self.obstacles=[]
-        self.offset = 220
         self.Show()
-        self.presaoGranicu = False
+        if self.numberOfObstacles > 0:
+            self.InitObstacles()
 
-        #ispravljeno da se stabla ne preklapaju, radi tako sto proverava da li se preklapa sa nekim drugim stablom
-        #i ako se preklapa prepravlja se x koordinata (linija 56), randint se koristi da se onda izmedu stabla
-        #jos doda razmak, od 70 do 90 da zaba ne moze preci sa stabla na stablo, to mozda i ne treba pa se moze smanjiti
-        #Ako je prepravljena x koordinata veca od ivice prozora, znaci pocinje van ekrana, jednostavno
-        #je visak, i nju onda ne prikazujemo, nema mesta gde da se ubaci, zbog toga postoji if u liniji 67.
-        #to se desi npr kad se generisu 3 stabla i sva tri su w=310.
+    def InitObstacles(self):
+        self.GenerateObstacles()
+        self.SetFollowers()
 
-        for i in range(numOfObs):
-            if type == "voda":
-                self.offset = 150
-                self.presaoGranicu = False
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd, isLogLane=True)
-                #print('generisani', o.x, o.w, o.x + o.w)
-                for obs in self.obstacles:
-                    if obs.x + obs.w >= o.x:
-                        #print('kolizija sa', obs.x, obs.w, obs.x + obs.w)
-                        o.x += obs.x + obs.w - o.x + random.randint(70, 90)
-                        if o.x > Config.gridSize * Config.mapSize:
-                            #print('preko granice')
-                            self.presaoGranicu = True
-                        else:
-                            self.presaoGranicu = False
+    def GenerateObstacles(self):
+        startingX = self.offset
 
-                        #print('ispravljeni', o.x, o.w, o.x + o.w)
-                if self.presaoGranicu == False:
-                    o.Show()
-                    self.obstacles.append(o)
+        for i in range(self.numberOfObstacles):
+            if self.laneType == Config.laneTypeWater:
+                newObstacle = Obstacle(startingX, self.y, self.speed, isLogLane=True)
             else:
-                o = Obstacle(i * self.spc + self.offset, Config.yLane, self.spd)
-                o.Show()
-                self.obstacles.append(o)
+                newObstacle = Obstacle(startingX, self.y, self.speed)
 
 
+            #u ovom bloku racuna X sledeceg obstaclea i po potrebi korektuje X trenutnog obstaclea :D
+            if self.speed < 0:
+                startingX = startingX + self.spacing + newObstacle.w
+            else:
+                startingX = startingX - self.spacing - newObstacle.w
+                # mora da se uzme u obzir i sirina novog obstacle-a jer je X koridinata sa leve strane objekta (a objekat treba da se pojavi sa leve strane ekrana)
+                newObstacle.SetPosition(startingX, self.y)
 
 
+            # ovo je da bi offset ostao izmedju prvog i poslednjeg auta u lejnu kada se prvi auto ponovo pojavi
+            if i == 0:
+                newObstacle.setLaneSpacing(self.spacing + self.offset)
+            else:
+                newObstacle.setLaneSpacing(self.spacing)
 
+            self.obstacles.append(newObstacle)
 
+    def SetFollowers(self):
+        #kad ima jedan obstacle, nece sam sebe pratiti zbog uslova u funkciji setObjectToFollow
+        for i in range(len(self.obstacles) - 1):
+            self.obstacles[i + 1].setObjectToFollow(self.obstacles[i])
+            self.obstacles[i + 1].Show()
 
+        self.obstacles[0].setObjectToFollow(self.obstacles[-1])
+        self.obstacles[0].Show()
+
+    @staticmethod
+    def GenerateLane(availableConfigs, overrideLaneType=None):
+        selectedConfig = random.randint(0, len(availableConfigs) - 1)
+        config = availableConfigs[selectedConfig]
+
+        direction = pow(-1,random.randint(0, 9))
+
+        if overrideLaneType != None:
+            return Lane(config[0], config[1] * direction, config[2], overrideLaneType)
+        else:
+            return Lane(config[0],config[1] * direction, config[2],config[3])
+
+    @staticmethod
+    def GenerateSafetyLane():
+        return Lane(0,0,0,Config.laneTypeSafety)
+
+    @staticmethod
+    def GenerateEasyLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesEasyConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateMediumLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesMediumConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateHardLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesHardConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateEasyWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesEasyWaterConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateMediumWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesMediumWaterConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateHardWaterLane(overrideLaneType=None):
+        return Lane.GenerateLane(Config.lanesHardWaterConfig, overrideLaneType=overrideLaneType)
+
+    @staticmethod
+    def GenerateFinalLane(funkcijaZaLilypad, lilyPadPattern = Config.lilypadPatternBO5Standard, randomPatternBO5=False):
+        l = Lane(0,0,0, Config.laneTypeFinal) #ovo se poziva samo da bi se inkrementirao indeks za lejn i dobila Y pozicija
+        counter = 0
+
+        if randomPatternBO5:
+            lilyPadPattern = random.choice([Config.lilypadPatternBO5Standard, Config.lilypadPatternBO5V2, Config.lilypadPatternBO5V3])
+
+        for char in lilyPadPattern:
+            if char == "0":
+                Bush(counter * Config.gridSize, l.y, 50, 50)
+            elif char == "1":
+                Lilypad(counter * Config.gridSize, l.y, funkcijaZaLilypad)
+            counter += 1
+
+        if counter < Config.mapSize - 1:
+            print("Sablon za final lejn nije dobar")
+
+        return l
