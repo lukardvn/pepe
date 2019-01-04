@@ -2,10 +2,17 @@ class Config:
     gridSize = 50   #velicina (u pikselima) 'mreze' po kojoj se krecu igraci
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     FPS = 30
-    frogLives = 5
+
+    #prljavo resenje da se ovde pamte podaci prilikom prelaska na veci nivo, ali znatno olaksava posao, nego da se zaba ne obrise jer
+    #nije jedina u lejeru zaba, plus ne bude vidljiva kad se novi nivo pojavi, jer se on napravi preko nje, tako da je ovo lakse
+    p1Lives = 5
+    p2Lives = 5
+    p1Score = 0
+    p2Score = 0
+
     twoPl = False
                             #X, Y
-    player1StartPosition = (10,7)
+    player1StartPosition = (11,14)
     player2StartPosition = (3,14)
 
     newLaneYIndex = 0 #globalni brojac gde treba da se nalazi novi lane u gridu

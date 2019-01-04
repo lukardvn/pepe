@@ -118,10 +118,6 @@ class Rectangle(GameObject):
         return (self.w, self.h)
 
     def Hide(self):
-        #self.label.setGeometry(0,0,0,0)
-        #self.label.hide()
-        #self.SetSize(0,0)
-        #self.label.setPixmap(None)
         self.label.setGeometry(0, 0, 0, 0)
         self.label.hide()
         self.SetSize(0, 0)

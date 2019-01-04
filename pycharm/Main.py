@@ -1,23 +1,16 @@
 import sys
-import PyQt5
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QApplication
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 from key_notifier import KeyNotifier
-
 from Config import Config
 from Frog import Frog
 from GameObject import GameObject, GOUpdater
 from Lane import Lane
-import datetime
-from Lilypad import Lilypad
 from Rectangle import Rectangle
 from random import shuffle, randrange
-
+from Score import Scoreboard
 from MainMenu import Meni
-
 
 class Frogger(QWidget):
     def __init__(self):
@@ -31,12 +24,15 @@ class Frogger(QWidget):
         # ako je SinglePlayer mod onda je gameOver ako je brojac 1
         self.Level = 1 # za levele
 
+        self.scoreboard = Scoreboard(self)
+
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
 
         self.key_notifier = KeyNotifier()
         self.key_notifier.key_signal.connect(self.__update_position__)
         self.key_notifier.start()
+
 
     def __init_ui__(self):
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode)
@@ -57,25 +53,29 @@ class Frogger(QWidget):
     def SinglePlayerMode(self):
         self.Menu.HideMainMenu()
         self.DisplayMap()
+        self.scoreboard.ShowScores()
         self.CreatePlayers()
-
     def TwoPlayerMode(self):
         self.Menu.HideMainMenu()
-        self.DisplayMap()
+        self.DisplayMap(TwoPlayers=True)
+        self.scoreboard.ShowScores()
         self.CreatePlayers(TwoPlayers=True)
 
     def CreatePlayers(self, TwoPlayers=False):
-        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck)
+        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck, self.scoreboard.updateP1Score)
         if TwoPlayers:
-            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, isPlayerTwo=True)
-            Config.twoPl = TwoPlayers
+            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, self.scoreboard.updateP2Score, isPlayerTwo=True)
+            #Config.twoPl = TwoPlayers
 
-    def DisplayMap(self):
+    def DisplayMap(self, TwoPlayers=False):
         self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn
         self.GenerateLanes('Road')    #fja da generise lejnove za put
         self.Map.append(Lane.GenerateSafetyLane())
         self.GenerateLanes('Water')   #fja da generise lejnove za reku
-        self.Map.append(Lane.GenerateFinalLane(self.LevelPassed)) # zadnji je uvek finalLane
+        if TwoPlayers:
+            self.Map.append(Lane.GenerateFinalLane(self.LevelPassed)) # zadnji je uvek finalLane
+        else:
+            self.Map.append(Lane.GenerateFinalLane(self.LevelPassed, lilyPadPattern=Config.lilypadPatternBO5Standard))  # zadnji je uvek finalLane
 
         self.startThreadForUpdatingObjects()
 
@@ -91,58 +91,67 @@ class Frogger(QWidget):
                     self.igrac1.Hide()
                     self.igrac1 = None
         elif self.igrac1 != None:
-            if self.GameOverBrojac == 1:
-                self.GameOver(False)
-            elif self.GameOverBrojac == 2:
-                self.GameOver(True)
+            self.GameOver()
         elif self.igrac2 != None:
-            if self.GameOverBrojac == 2:
-                self.GameOver(True)
+            self.GameOver()
 
-    def GameOver(self, isPlayerTwo):
+    def GameOver(self):
         #fja koja se poziva kad su svi igraci igraci ostali bez zivota
         self.stopThreadForUpdatingObjects()
-        self.DeleteMap(isPlayerTwo)
+        self.DeleteMap(deleteP1=True, deleteP2=True)
         self.Menu.ShowMainMenu()
         Config.newLaneYIndex = 0
         self.GameOverBrojac = 0
         self.Level = 1
+        self.scoreboard.HideScores()
+        Config.p1Score = 0
+        Config.p2Score = 0
+        Config.p1Lives = 5
+        Config.p2Lives = 5
 
     def LevelPassed(self):
         #fja koja se poziva kad su svih 5 Lilypada popunjena, prosledjuje se u konstruktoru, prvo finalLejnu pa samim objektima
         self.stopThreadForUpdatingObjects()
         self.Level += 1
-        #print(self.Level)
         Config.newLaneYIndex = 0
         self.GameOverBrojac = 0
         if self.igrac1 != None and self.igrac2 != None:
-            self.DeleteMap(True)
-            self.DisplayMap()
+            Config.p1Score = self.igrac1.score
+            Config.p2Score = self.igrac2.score
+            Config.p1Lives = self.igrac1.lives
+            Config.p2Lives = self.igrac2.lives
+            self.DeleteMap()
+            self.DisplayMap(TwoPlayers=True)
             self.CreatePlayers(TwoPlayers=True)
         elif self.igrac1 != None:
-            self.DeleteMap(False)
+            Config.p1Score = self.igrac1.score
+            Config.p1Lives = self.igrac1.lives
+            self.DeleteMap()
             self.DisplayMap()
             self.CreatePlayers()
         elif self.igrac2 != None:
-            self.DeleteMap(True)
+            Config.p2Score = self.igrac2.score
+            Config.p2Lives = self.igrac2.lives
+            self.DeleteMap()
             self.DisplayMap()
             self.CreatePlayers(TwoPlayers=True)
             self.igrac1.Hide()
             self.igrac1 = None
 
-    def DeleteMap(self, TwoPlayers):
-        try:
-            self.igrac1.Hide()
-            self.igrac1 = None
-        except:
-            print('vec postavljen na None')
+    def DeleteMap(self, deleteP1=False, deleteP2=False):
+        if deleteP1:
+            try:
+                self.igrac1.Hide()
+                self.igrac1 = None
+            except:
+                print('P1 vec postavljen na None')
 
-        if TwoPlayers:
+        if deleteP2:
             try:
                 self.igrac2.Hide()
                 self.igrac2 = None
             except:
-                print('vec postavljen na None')
+                print('P2 vec postavljen na None')
 
         for lane in self.Map:
             for obs in lane.obstacles:
