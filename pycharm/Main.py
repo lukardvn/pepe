@@ -68,6 +68,7 @@ class Frogger(QWidget):
         self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck)
         if TwoPlayers:
             self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, isPlayerTwo=True)
+            Config.twoPl = TwoPlayers
 
     def DisplayMap(self):
         self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn

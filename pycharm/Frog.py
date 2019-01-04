@@ -31,6 +31,8 @@ class Frog(Rectangle):
 
         super().__init__(x * Config.gridSize,y * Config.gridSize,self.height,self.width, self.sprite, layer=Config.layerZabe)
         self.isPlayerTwo = isPlayerTwo
+        #print(self.isPlayerTwo)
+        #print(isPlayerTwo)
         self.GameOver = funkcijaZaGejmover
         self.Show()
 
@@ -50,7 +52,7 @@ class Frog(Rectangle):
 
         lokvanj = self.CollidedWithLilypad()
         if lokvanj != None:
-            lokvanj.usedByPlayer(self)
+            lokvanj.usedByPlayer(self,Config.twoPl)
 
     def CollidedWithLilypad(self):
         return self.CollisionLayerSpecific(Config.layerLilypad, returnObject=True)

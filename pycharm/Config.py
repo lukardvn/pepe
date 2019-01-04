@@ -3,8 +3,9 @@ class Config:
     mapSize = 15    #velicina mape => 'mreza' 15x15 (750px X 750px)
     FPS = 30
     frogLives = 5
+    twoPl = False
                             #X, Y
-    player1StartPosition = (10,14)
+    player1StartPosition = (10,7)
     player2StartPosition = (3,14)
 
     newLaneYIndex = 0 #globalni brojac gde treba da se nalazi novi lane u gridu

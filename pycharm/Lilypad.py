@@ -9,7 +9,7 @@ class Lilypad(Rectangle):
         self.funkcijaZaLilypad = funkcijaZaLilypad
         self.brojac = 0
 
-    def usedByPlayer(self, player):
+    def usedByPlayer(self, player,isTwoPlayer):
         self.lastPlayerOnLilypad = player
         if self.lastPlayerOnLilypad == None and self.loadedSprite != 'lilypadV2.png':
             self.ChangeSprite('lilypadV2.png')
@@ -24,6 +24,12 @@ class Lilypad(Rectangle):
             if rect.lastPlayerOnLilypad != None:
                 self.brojac += 1
 
-        if self.brojac == 5:
-            self.funkcijaZaLilypad()
-            self.brojac = 0
+        #print(Config.twoPl,isTwoPlayer)
+        if isTwoPlayer:
+            if self.brojac == 3:
+                self.funkcijaZaLilypad()
+                self.brojac = 0
+        else:
+            if self.brojac == 5:
+                self.funkcijaZaLilypad()
+                self.brojac = 0
