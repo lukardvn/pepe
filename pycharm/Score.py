@@ -28,8 +28,8 @@ class Scoreboard(QWidget):
 
     def CreateWidgets(self):
         widgets = []
-        widgets.append(self.AddLabel("player1Score", 650, 750, "0", "Green"))
-        widgets.append(self.AddLabel("player2Score", 70, 750, "0", "Red"))
+        widgets.append(self.AddLabel("player1Score", 650, 750, "0", "Green",hide=True))
+        widgets.append(self.AddLabel("player2Score", 70, 750, "0", "Red",hide=True))
         return widgets
 
 
