@@ -25,7 +25,7 @@ class Lilypad(Rectangle):
             if rect.lastPlayerOnLilypad != None:
                 self.brojac += 1
 
-        if self.brojac == 1:
+        if self.brojac == 5:
             self.levelPassed()
             self.brojac = 0
         #else:
