@@ -9,8 +9,13 @@ class Config:
     p2Lives = 5
     p1Score = 0
     p2Score = 0
+    p1Name = 'Player1'
+    p2Name = 'Player2'
 
     twoPl = False
+
+    font_family = "Niagara Solid"
+
                             #X, Y
     player1StartPosition = (11,14)
     player2StartPosition = (3,14)
@@ -133,3 +138,5 @@ class Config:
         (4, 8.23, 320, laneTypeWater),
         (5, 9.15, 260, laneTypeWater)
     ]
+
+    highscore_filename = "hs.txt"

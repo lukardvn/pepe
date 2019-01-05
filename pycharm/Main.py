@@ -11,6 +11,7 @@ from Rectangle import Rectangle
 from random import shuffle, randrange
 from Score import Scoreboard
 from MainMenu import Meni
+from Highscore import HighScore
 
 class Frogger(QWidget):
     def __init__(self):
@@ -25,6 +26,8 @@ class Frogger(QWidget):
         self.Level = 1 # za levele
 
         self.scoreboard = Scoreboard(self)
+        self.highscore = HighScore()
+        self.highscore.readFromFile()
 
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
@@ -53,7 +56,7 @@ class Frogger(QWidget):
     def SinglePlayerMode(self):
         self.Menu.HideMainMenu()
         self.DisplayMap()
-        self.scoreboard.ShowScores()
+        self.scoreboard.ShowScore()
         self.CreatePlayers()
     def TwoPlayerMode(self):
         self.Menu.HideMainMenu()
@@ -85,14 +88,18 @@ class Frogger(QWidget):
         if self.igrac1 != None and self.igrac2 != None:
             if self.GameOverBrojac == 1:
                 if isPlayerTwo:
+                    self.highscore.checkIfHighScore(self.igrac2.playerName, self.igrac2.score)
                     self.igrac2.Hide()
                     self.igrac2 = None
                 else:
+                    self.highscore.checkIfHighScore(self.igrac1.playerName, self.igrac1.score)
                     self.igrac1.Hide()
                     self.igrac1 = None
         elif self.igrac1 != None:
+            self.highscore.checkIfHighScore(self.igrac1.playerName, self.igrac1.score)
             self.GameOver()
         elif self.igrac2 != None:
+            self.highscore.checkIfHighScore(self.igrac2.playerName, self.igrac2.score)
             self.GameOver()
 
     def GameOver(self):

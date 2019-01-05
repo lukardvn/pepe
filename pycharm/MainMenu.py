@@ -32,9 +32,9 @@ class Meni(QWidget):
         optionsWidgets = []
         optionsWidgets.append(self.AddLabel("player1Name", 50, 200, "PLAYER 1:", hide=True))
         optionsWidgets.append(self.AddLabel("player2Name", 50, 300, "PLAYER 2:", hide=True))
-        optionsWidgets.append(self.AddEditLine("player1NameTxt", 400, 185, 300, 95, "", hide=True))
-        optionsWidgets.append(self.AddEditLine("player2NameTxt", 400, 285, 300, 95, "", hide=True))
-        optionsWidgets.append(self.AddButton("closeOptionsWidget", "widgetsExit", 50, 400, 400, 70, exitMenuOnClick, hide=True))
+        optionsWidgets.append(self.AddEditLine("player1NameTxt", 250, 185, 450, 95, "Player1", hide=True))
+        optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, "Player2", hide=True))
+        optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
 
     def OptionsSubMenuShow(self):
@@ -44,7 +44,18 @@ class Meni(QWidget):
         for element in self.optionsElements:
             element.show()
 
+    #Fja koja se izvrsava prilikom klika na Ok button u okviru Options prozora
     def OptionsSubMenuHide(self):
+        #uzima se ime iz textBoxa, znamo da je na ovoj poziciji plName
+        if self.optionsElements[2] != None:
+            Config.p1Name = self.optionsElements[2].text()
+            self.optionsElements[2].clearFocus()
+
+        # uzima se ime iz textBoxa, znamo da je na ovoj poziciji p2Name
+        if self.optionsElements[3] != None:
+            Config.p2Name = self.optionsElements[3].text()
+            self.optionsElements[3].clearFocus()
+
         for element in self.optionsElements:
             element.hide()
 
@@ -72,7 +83,7 @@ class Meni(QWidget):
         lbl.setObjectName(objectName)
         lbl.move(x, y)
         lbl.setStyleSheet(
-            "QLabel#"+objectName+" {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+            "QLabel#"+objectName+" {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         lbl.setText(text)
         if hide:
             lbl.hide()
@@ -85,7 +96,7 @@ class Meni(QWidget):
         editLine.move(x, y)
         editLine.resize(width, height)
         editLine.setStyleSheet(
-            "QLineEdit#"+objectName+" {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+            "QLineEdit#"+objectName+" {background: rgba(152, 193, 42, 0.5); border: 5px solid #98C12A; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         editLine.setText(text)
         # Widgets.append(player1NameTxt)
         if hide:

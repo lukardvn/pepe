@@ -25,11 +25,13 @@ class Frog(Rectangle):
         self.startY = y
         self.logSpeed = 0
 
+        self.playerName = Config.p1Name
         self.sprite = self.spriteUpP1
         self.lives = Config.p1Lives
         self.score = Config.p1Score
 
         if isPlayerTwo:
+            self.playerName = Config.p2Name
             self.sprite = self.spriteUpP2
             self.lives = Config.p2Lives
             self.score = Config.p2Score
