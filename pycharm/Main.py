@@ -68,9 +68,9 @@ class Frogger(QWidget):
         self.CreatePlayers(TwoPlayers=True)
 
     def CreatePlayers(self, TwoPlayers=False):
-        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck, self.scoreboard.updateP1Score)
+        self.igrac1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck, self.scoreboard.updateP1Score, self.scoreboard.CreateGreenLives)
         if TwoPlayers:
-            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, self.scoreboard.updateP2Score, isPlayerTwo=True)
+            self.igrac2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, self.scoreboard.updateP2Score, self.scoreboard.CreatePinkLives, isPlayerTwo=True)
             #Config.twoPl = TwoPlayers
 
     def DisplayMap(self, TwoPlayers=False):
@@ -94,10 +94,12 @@ class Frogger(QWidget):
                     self.highscore.checkIfHighScore(self.igrac2.playerName, self.igrac2.score)
                     self.igrac2.Hide()
                     self.igrac2 = None
+                    Config.p2Lives = 0
                 else:
                     self.highscore.checkIfHighScore(self.igrac1.playerName, self.igrac1.score)
                     self.igrac1.Hide()
                     self.igrac1 = None
+                    Config.p1Lives = 0
         elif self.igrac1 != None:
             self.highscore.checkIfHighScore(self.igrac1.playerName, self.igrac1.score)
             self.GameOver()

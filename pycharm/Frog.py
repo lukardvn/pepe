@@ -20,7 +20,7 @@ class Frog(Rectangle):
     spriteRightP2 = 'frog_sprite_player2r_50.png'
     spriteDownP2 = 'frog_sprite_player2d_50.png'
 
-    def __init__(self, x, y, funkcijaZaGejmover, funkcijaZaScoreboard , isPlayerTwo = False):
+    def __init__(self, x, y, funkcijaZaGejmover, funkcijaZaScoreboard, funkcijaZaZivote, isPlayerTwo = False):
         self.startX = x
         self.startY = y
         self.logSpeed = 0
@@ -42,9 +42,11 @@ class Frog(Rectangle):
         #print(isPlayerTwo)
         self.GameOver = funkcijaZaGejmover
         self.funkcijaZaScoreboard = funkcijaZaScoreboard
+        self.funkcijaZaZivote = funkcijaZaZivote
         self.Show()
 
         self.funkcijaZaScoreboard(self.score)
+        self.funkcijaZaZivote(self.lives)
 
     def update(self):
         if self.IsInWaterLane():
@@ -82,7 +84,7 @@ class Frog(Rectangle):
 
     def Die(self):
         self.lives -= 1
-        #print(self.lives)
+        self.funkcijaZaZivote(self.lives)
 
         if self.lives == 0:
             self.ReturnToStart()

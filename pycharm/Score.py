@@ -1,6 +1,7 @@
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QLabel, QWidget
+from PyQt5.QtGui import QPixmap
 from Config import Config
 
 class Scoreboard(QWidget):
@@ -8,8 +9,10 @@ class Scoreboard(QWidget):
         super().__init__()
         self.qWidget = QWidget
         self.allWidgets = []
-
         self.allWidgets = self.CreateWidgets()
+
+        self.p1Lives = []
+        self.p2Lives = []
 
     def AddLabel(self, objectName, x, y, text, color, hide=False):
         lbl = QLabel(self.qWidget)
@@ -26,10 +29,45 @@ class Scoreboard(QWidget):
         self.allWidgets.append(lbl)
         return lbl
 
+    def CreateHeart(self, x, y, color):
+        lbl = QLabel(self.qWidget)
+        if color == "Green":
+            pixmap = QPixmap(Config.spriteLocation + "greenHeart.png")
+        elif color == "Pink":
+            pixmap = QPixmap(Config.spriteLocation + "pinkHeart.png")
+        pixmap = pixmap.scaled(50, 50)
+        lbl.setPixmap(pixmap)
+        lbl.move(x, y)
+        lbl.resize(50, 50)
+        lbl.setFocusPolicy(QtCore.Qt.NoFocus)
+        return lbl
+
+    def CreateNumOfLivesHearts(self, color, lives):
+        widgets = []
+        if color == "Green":
+            x = 390
+        else:
+            x = 100
+
+        for i in range(0, lives):
+            widgets.append(self.CreateHeart(x, 750, color))
+            x += 50
+        return widgets
+
+    def CreateGreenLives(self, lives):
+        self.HideP1Lives()
+        self.p1Lives = self.CreateNumOfLivesHearts("Green", lives)
+        self.ShowP1Lives()
+
+    def CreatePinkLives(self, lives):
+        self.HideP2Lives()
+        self.p2Lives = self.CreateNumOfLivesHearts("Pink", lives)
+        self.ShowP2Lives()
+
     def CreateWidgets(self):
         widgets = []
-        widgets.append(self.AddLabel("player1Score", 650, 750, "0", "Green",hide=True))
-        widgets.append(self.AddLabel("player2Score", 70, 750, "0", "Red",hide=True))
+        widgets.append(self.AddLabel("player1Score", 680, 750, "0", "Green",hide=True))
+        widgets.append(self.AddLabel("player2Score", 40, 750, "0", "Red",hide=True))
         return widgets
 
 
@@ -51,3 +89,21 @@ class Scoreboard(QWidget):
     def ShowScores(self):
         for widget in self.allWidgets:
             widget.show()
+
+    def ShowP1Lives(self):
+        for widget in self.p1Lives:
+            widget.show()
+
+    def ShowP2Lives(self):
+        for widget in self.p2Lives:
+            widget.show()
+
+    def HideP1Lives(self):
+        for widget in self.p1Lives:
+            widget.hide()
+        self.p1Lives.clear()
+
+    def HideP2Lives(self):
+        for widget in self.p2Lives:
+            widget.hide()
+        self.p2Lives.clear()
