@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit
 from Config import Config
 
 class Meni(QWidget):
-    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers):
+    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc):
         super().__init__()
         self.allWidgets = []
         self.qWidget = QWidget
@@ -16,14 +16,15 @@ class Meni(QWidget):
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc)
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
+        self.hsElements = []
 
-    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick):
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc):
         listaWidgeta = []
         listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 200, 400, 70, singlePlayerOnClick))
         listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 300, 400, 70, twoPlayerOnClick))
-        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 400, 400, 70))
+        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 400, 400, 70, highscoresFunkc))
         listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 500, 400, 70, self.OptionsSubMenuShow))
         listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 600, 400, 70, self.exitClicked))
         return listaWidgeta
@@ -36,6 +37,33 @@ class Meni(QWidget):
         optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, "Player2", hide=True))
         optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
+
+    def HsElementsInit(self, nizTop3):
+        widgets = []
+        y = 200
+        for item in nizTop3:
+            widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+            y += 100
+        widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
+        return widgets
+
+    def HsElementsShow(self, nizTop3):
+        for widget in self.allWidgets:
+            widget.hide()
+
+        self.hsElements = self.HsElementsInit(nizTop3)
+
+        for item in self.hsElements:
+            item.show()
+
+    def HsElementsHide(self):
+        for item in self.hsElements:
+            item.hide()
+
+        for btn in self.mainButtons:
+            btn.show()
+
+        self.hsElements.clear()
 
     def OptionsSubMenuShow(self):
         for btn in self.mainButtons:

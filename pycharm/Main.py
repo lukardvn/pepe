@@ -38,13 +38,16 @@ class Frogger(QWidget):
 
 
     def __init_ui__(self):
-        self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode)
+        self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc)
         self.setWindowTitle('Frogger')
         self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
         self.show()
         #self.startThreadForUpdatingObjects()
+
+    def HsFunkc(self):
+        self.Menu.HsElementsShow(self.highscore.top3)
 
     #obicna funkcija za fiksiranje velicine prozora
     def FixWindowSize(self):

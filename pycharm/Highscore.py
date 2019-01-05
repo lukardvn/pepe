@@ -1,3 +1,4 @@
+import json
 from Config import Config
 
 class HighScore:
@@ -8,47 +9,37 @@ class HighScore:
 #uvek se cuva top 3 rezultata
 
     def saveToFile(self):
-        file = open(Config.highscore_filename, "w")
-        for item in self.top3:
-            file.write(str(item[0]) + ':' + str(item[1]) + '\n')
-        file.close()
+        try:
+            with open(Config.highscore_filename, 'w') as outfile:
+                json.dump(self.top3, outfile)
+            outfile.close()
+        except:
+            print('failed to save score to file')
 
     def readFromFile(self):
         try:
-            file = open(Config.highscore_filename, "r")
-            for line in file:
-                n, s = line.split(":")
-                s = s.rstrip()
-                item = []
-                item.append(n)
-                item.append(s)
-                self.top3.append(item)
-            self.top3 = sorted(self.top3, key=lambda item: item[1], reverse=True)
-            file.close()
+            file_object = open(Config.highscore_filename, 'r')
+            self.top3 = json.load(file_object) #ucitaj hs
+            file_object.close()
         except:
-            print('ne postoji fajl ili je prvo kreiranje')
+            print('empty file')
 
     def checkIfHighScore(self, n, s):
-        newItem = []
-        newItem.append(n)
-        newItem.append(s)
+        if s > 0:
+            self.top3.append([n, s])
+            niz = []
+            try:
+                niz = sorted(self.top3, key=lambda x: x[1], reverse=True)
+            except:
+                print('sort pukao')
+            self.top3.clear()
+            for i in range(0, len(niz)):
+                if i >= 3:
+                    break
+                else:
+                    self.top3.append(niz[i])
 
-        if len(self.top3) < 3:
-            self.top3.append(newItem)
-            print('<3')
-        else:
-            print('=3')
-            minimalni = min(self.top3, key=lambda item: item[1])
-            print(minimalni)
-            if s > int(minimalni[1]):
-                print('if prosao')
-                self.top3.remove(minimalni)
-                print('remove prosao')
-                self.top3.append(newItem)
-
-        self.top3 = sorted(self.top3, key=lambda item: item[1], reverse=True) #sortira od najboljeg ka najlosijem skoru
-        self.saveToFile()
-
+            self.saveToFile()
 
 
 
