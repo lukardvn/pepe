@@ -45,9 +45,9 @@ class Scoreboard(QWidget):
     def CreateNumOfLivesHearts(self, color, lives):
         widgets = []
         if color == "Green":
-            x = 390
+            x = 370
         else:
-            x = 100
+            x = 120
 
         for i in range(0, lives):
             widgets.append(self.CreateHeart(x, 750, color))
@@ -66,7 +66,7 @@ class Scoreboard(QWidget):
 
     def CreateWidgets(self):
         widgets = []
-        widgets.append(self.AddLabel("player1Score", 680, 750, "0", "Green",hide=True))
+        widgets.append(self.AddLabel("player1Score", 700, 750, "0", "Green",hide=True))
         widgets.append(self.AddLabel("player2Score", 40, 750, "0", "Red",hide=True))
         return widgets
 

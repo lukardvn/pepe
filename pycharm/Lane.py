@@ -4,6 +4,8 @@ from Obstacle import  Obstacle
 import random
 from Lilypad import Lilypad
 from Bush import Bush
+from LilyDeus import LilyDeus
+from Grass import Grass
 
 class Lane(Rectangle):
     def __init__(self, numOfObs, speed, spacing, typeOfLane):
@@ -87,6 +89,22 @@ class Lane(Rectangle):
     @staticmethod
     def GenerateSafetyLane():
         return Lane(0,0,0,Config.laneTypeSafety)
+
+    @staticmethod
+    def GenerateSafetyLaneWithDeus(deusPattern=Config.safetyLaneDeusPattern):
+        l = Lane(0, 0, 0, Config.laneTypeSafety)
+        counter = 0
+        for char in deusPattern:
+            if char == "0":
+                Grass(counter * Config.gridSize, l.y, 50, 50)
+            elif char == "1":
+                LilyDeus(counter * Config.gridSize, l.y, 50, 50)
+            counter += 1
+
+        if counter < Config.mapSize - 1:
+            print("Sablon za lejn nije dobar")
+
+        return l
 
     @staticmethod
     def GenerateEasyLane(overrideLaneType=None):

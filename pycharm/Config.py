@@ -30,6 +30,7 @@ class Config:
     lilypadPatternBO5V2 = "100100010001001"
     lilypadPatternBO5V3 = "010001010100010"
     lilypadPatternBO3 = "000100010001000"
+    safetyLaneDeusPattern = "100000000000000"
 
     #sprajtovi
     spriteLocation = "sprites/"

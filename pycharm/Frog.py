@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QThread
 
 from Config import Config
 import time
+import random
 
 class Frog(Rectangle):
     # height = 50
@@ -108,7 +109,28 @@ class Frog(Rectangle):
         currentPosition = super().GetPosition()
         newXcoord = currentPosition[0] + Config.gridSize * x
         newYcoord = currentPosition[1] + Config.gridSize * y
+        print(newXcoord,newYcoord)
+        self.deus(newXcoord,newYcoord)
         super().SetPosition(newXcoord, newYcoord)
+
+    def deus(self,xCord,yCord):
+        if xCord == 0 and yCord ==350:
+            if random.randint(1,5) == 3:
+                if self.lives < 6:
+                    if self.isPlayerTwo:
+                        Config.p2Lives = self.lives + 1
+                        self.lives = Config.p2Lives
+                        self.funkcijaZaZivote(self.lives)
+                        #print(self.lives)
+                        #print(Config.p2Lives)
+                    else:
+                        Config.p1Lives = self.lives + 1
+                        self.lives = Config.p1Lives
+                        self.funkcijaZaZivote(self.lives)
+                        #print(self.lives)
+                        #print(Config.p1Lives)
+                else:
+                    print("")
 
     def GoLeft(self):
         if self.isPlayerTwo:

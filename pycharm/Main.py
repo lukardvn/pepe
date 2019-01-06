@@ -61,6 +61,7 @@ class Frogger(QWidget):
         self.DisplayMap()
         self.scoreboard.ShowScore()
         self.CreatePlayers()
+
     def TwoPlayerMode(self):
         self.Menu.HideMainMenu()
         self.DisplayMap(TwoPlayers=True)
@@ -76,7 +77,10 @@ class Frogger(QWidget):
     def DisplayMap(self, TwoPlayers=False):
         self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn
         self.GenerateLanes('Road')    #fja da generise lejnove za put
-        self.Map.append(Lane.GenerateSafetyLane())
+        #self.Map.append(Lane.GenerateSafetyLane())
+        ##ovaj ce da bude uvek tu da bi se moglo duze igrati
+        ##lejn sa zivotom
+        self.Map.append(Lane.GenerateSafetyLaneWithDeus())
         self.GenerateLanes('Water')   #fja da generise lejnove za reku
         if TwoPlayers:
             self.Map.append(Lane.GenerateFinalLane(self.LevelPassed)) # zadnji je uvek finalLane
@@ -178,6 +182,10 @@ class Frogger(QWidget):
         for rect in Rectangle.allRectangles[Config.layerZabe]:
             rect.Hide()
         Rectangle.allRectangles[Config.layerZabe].clear()
+
+        for rect in Rectangle.allRectangles[Config.layerDefault]:
+            rect.Hide()
+        Rectangle.allRectangles[Config.layerDefault].clear()
 
         self.Map.clear()
 
