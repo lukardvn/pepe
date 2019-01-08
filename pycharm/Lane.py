@@ -4,6 +4,8 @@ from Obstacle import  Obstacle
 import random
 from Lilypad import Lilypad
 from Bush import Bush
+from LilyDeus import LilyDeus
+from Grass import Grass
 
 class Lane(Rectangle):
     def __init__(self, numOfObs, speed, spacing, typeOfLane):
@@ -31,6 +33,15 @@ class Lane(Rectangle):
         self.Show()
         if self.numberOfObstacles > 0:
             self.InitObstacles()
+
+    def ChangeSpeed(self, speed):
+        if self.speed > 0:
+            for obj in self.obstacles:
+                obj.speed += speed
+        else:
+            for obj in self.obstacles:
+                obj.speed -= speed
+
 
     def InitObstacles(self):
         self.GenerateObstacles()
@@ -93,6 +104,22 @@ class Lane(Rectangle):
         return Lane(0,0,0,Config.laneTypeSafety)
 
     @staticmethod
+    def GenerateSafetyLaneWithDeus(deusPattern=Config.safetyLaneDeusPattern):
+        l = Lane(0, 0, 0, Config.laneTypeSafety)
+        counter = 0
+        for char in deusPattern:
+            if char == "0":
+                Grass(counter * Config.gridSize, l.y, 50, 50)
+            elif char == "1":
+                LilyDeus(counter * Config.gridSize, l.y, 50, 50)
+            counter += 1
+
+        if counter < Config.mapSize - 1:
+            print("Sablon za lejn nije dobar")
+
+        return l
+
+    @staticmethod
     def GenerateEasyLane(overrideLaneType=None):
         return Lane.GenerateLane(Config.lanesEasyConfig, overrideLaneType=overrideLaneType)
 
@@ -117,7 +144,7 @@ class Lane(Rectangle):
         return Lane.GenerateLane(Config.lanesHardWaterConfig, overrideLaneType=overrideLaneType)
 
     @staticmethod
-    def GenerateFinalLane(lilyPadPattern = Config.lilypadPatternBO5Standard, randomPatternBO5=False):
+    def GenerateFinalLane(funkcijaZaLilypad, lilyPadPattern = Config.lilypadPatternBO5Standard, randomPatternBO5=False):
         l = Lane(0,0,0, Config.laneTypeFinal) #ovo se poziva samo da bi se inkrementirao indeks za lejn i dobila Y pozicija
         counter = 0
 
@@ -128,10 +155,13 @@ class Lane(Rectangle):
             if char == "0":
                 Bush(counter * Config.gridSize, l.y, 50, 50)
             elif char == "1":
-                Lilypad(counter * Config.gridSize, l.y)
+                Lilypad(counter * Config.gridSize, l.y, funkcijaZaLilypad)
             counter += 1
 
         if counter < Config.mapSize - 1:
             print("Sablon za final lejn nije dobar")
 
         return l
+
+if __name__ == '__main__':
+    pass

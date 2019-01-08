@@ -125,3 +125,11 @@ class Rectangle(GameObject):
 
     def RemoveFromScreen(self):
         self.label.setParent(None)
+        
+    def Hide(self):
+        self.label.setGeometry(0, 0, 0, 0)
+        self.label.hide()
+        self.SetSize(0, 0)
+
+if __name__ == '__main__':
+    pass

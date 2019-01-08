@@ -32,3 +32,6 @@ class GOUpdater(QtCore.QThread):
             if not self.pause:
                 self.nekiObjekat.emit(1)
             time.sleep(1 / Config.FPS)
+
+if __name__ == '__main__':
+    pass

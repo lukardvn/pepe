@@ -19,16 +19,17 @@ class Obstacle(Rectangle):
         else:
             if not isLogLane:
                 self.sprite, w = Obstacle.getRandomCar(s)
+                self.buffer = 150
             else:
                 self.sprite, w = Obstacle.getRandomLog(s)
+                self.buffer = 330
 
         self.laneSpacing = laneSpacing #spejsing u lejnu u kom se ovaj objekat nalazi
         self.following = toFollow #objekat iza kog se krece trenutni objekat
 
         self.speed = s
-        self.buffer = 70
-
-        super().__init__(x, y, w, 50, self.sprite, layer=Config.layerPrepreke)
+        h = 50
+        super().__init__(x, y, w, h, self.sprite, layer=Config.layerPrepreke)
         super().AddToLayer(layer)
 
     def setLaneSpacing(self, spacing):
@@ -98,3 +99,6 @@ class Obstacle(Rectangle):
     @staticmethod
     def getRandomLog(speed):
         return Obstacle.getRandomSprite(Config.availableLogs, speed)
+
+if __name__ == '__main__':
+    pass

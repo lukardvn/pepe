@@ -49,3 +49,6 @@ class KeyNotifier(QObject):
                 self.key_signal.emit(k)
             self.keys.clear()
             time.sleep(0.05)
+
+if __name__ == '__main__':
+    pass

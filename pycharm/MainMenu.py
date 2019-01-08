@@ -1,30 +1,57 @@
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit
+from PyQt5.QtGui import QPixmap, QMovie
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit,QVBoxLayout
 from Config import Config
 
 
 class Meni(QWidget):
-    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, funcHostGame, funcJoinGame):
+    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame):
         super().__init__()
         self.allWidgets = []
         self.qWidget = QWidget
 
         self.bgImg = QLabel(QWidget)
-        pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png")  # prva verzija pozadine MainMenu.png
-        pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png")
+        pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
         self.bgImg.show()
 
-        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, funcHostGame, funcJoinGame)
-        self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
+        self.kisa = self.KreirajGif('kisa.gif') #label za kisu, koji ce se samo preko mape prikazivati i sklanjati
+        self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
+        movie = self.sneg.movie()
+        movie.setSpeed(200)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers,highscoresFunkc, funcHostGame, funcJoinGame)
 
-    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, hostOnClick, joinOnClick):
+        self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
+        self.hsElements = []
+
+    def KreirajGif(self, gif):  #kreira se Qlabel sa gif slikom u pozadini
+        label = QLabel(self.qWidget)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        loading_movie = QMovie(Config.spriteLocation + gif)
+        label.setMovie(loading_movie)
+        size = QtCore.QSize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        label.movie().setScaledSize(size)
+        loading_movie.start()
+        label.hide()
+        return label
+
+    def PrikaziPadavinu(self, tip):
+        if tip == 'kisa':
+            self.kisa.show()
+            self.kisa.raise_()
+        elif tip == 'sneg':
+            self.sneg.show()
+            self.sneg.raise_()
+
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick,highscoresFunkc, hostOnClick, joinOnClick):
         listaWidgeta = []
         listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 170, 400, 70, singlePlayerOnClick))
         listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 250, 400, 70, twoPlayerOnClick))
+        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 415, 330, 400, 70, highscoresFunkc)) #ovo treba podesiti gde ide
         listaWidgeta.append(self.AddButton("JoinGameWidget", "widgetsJoin", 5, 330, 400, 70, joinOnClick))
         listaWidgeta.append(self.AddButton("HostGameWidget", "widgetsHost", 5, 410, 400, 70, hostOnClick))
         listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 490, 400, 70))
@@ -32,15 +59,48 @@ class Meni(QWidget):
         listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 650, 400, 70, self.exitClicked))
         return listaWidgeta
 
+    def SakrijPadavinu(self, tip):
+        if tip == 'kisa':
+            self.kisa.hide()
+        elif tip == 'sneg':
+            self.sneg.hide()
+
+
     def OptionsSubMenuInit(self, exitMenuOnClick=None):
         optionsWidgets = []
         optionsWidgets.append(self.AddLabel("player1Name", 50, 200, "PLAYER 1:", hide=True))
         optionsWidgets.append(self.AddLabel("player2Name", 50, 300, "PLAYER 2:", hide=True))
-        optionsWidgets.append(self.AddEditLine("player1NameTxt", 400, 185, 300, 95, "", hide=True))
-        optionsWidgets.append(self.AddEditLine("player2NameTxt", 400, 285, 300, 95, "", hide=True))
-        optionsWidgets.append(
-            self.AddButton("closeOptionsWidget", "widgetsExit", 50, 400, 400, 70, exitMenuOnClick, hide=True))
+        optionsWidgets.append(self.AddEditLine("player1NameTxt", 250, 185, 450, 95, "Player1", hide=True))
+        optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, "Player2", hide=True))
+        optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
+
+    def HsElementsInit(self, nizTop3):
+        widgets = []
+        y = 200
+        for item in nizTop3:
+            widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+            y += 100
+        widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
+        return widgets
+
+    def HsElementsShow(self, nizTop3):
+        for widget in self.allWidgets:
+            widget.hide()
+
+        self.hsElements = self.HsElementsInit(nizTop3)
+
+        for item in self.hsElements:
+            item.show()
+
+    def HsElementsHide(self):
+        for item in self.hsElements:
+            item.hide()
+
+        for btn in self.mainButtons:
+            btn.show()
+
+        self.hsElements.clear()
 
     def OptionsSubMenuShow(self):
         for btn in self.mainButtons:
@@ -49,7 +109,18 @@ class Meni(QWidget):
         for element in self.optionsElements:
             element.show()
 
+    #Fja koja se izvrsava prilikom klika na Ok button u okviru Options prozora
     def OptionsSubMenuHide(self):
+        #uzima se ime iz textBoxa, znamo da je na ovoj poziciji plName
+        if self.optionsElements[2] != None:
+            Config.p1Name = self.optionsElements[2].text()
+            self.optionsElements[2].clearFocus()
+
+        # uzima se ime iz textBoxa, znamo da je na ovoj poziciji p2Name
+        if self.optionsElements[3] != None:
+            Config.p2Name = self.optionsElements[3].text()
+            self.optionsElements[3].clearFocus()
+
         for element in self.optionsElements:
             element.hide()
 
@@ -79,8 +150,7 @@ class Meni(QWidget):
         lbl = QLabel(self.qWidget)
         lbl.setObjectName(objectName)
         lbl.move(x, y)
-        lbl.setStyleSheet(
-            "QLabel#" + objectName + " {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        lbl.setStyleSheet("QLabel#" + objectName + " {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         lbl.setText(text)
         if hide:
             lbl.hide()
@@ -95,8 +165,7 @@ class Meni(QWidget):
         editLine.setObjectName(objectName)
         editLine.move(x, y)
         editLine.resize(width, height)
-        editLine.setStyleSheet(
-            "QLineEdit#" + objectName + " {background: rgb(102, 255, 102); border: 5px solid green; color: 'White'; font-family: 'Ariel'; font-size: 60px;}")
+        editLine.setStyleSheet("QLineEdit#" + objectName + " {background: rgba(152, 193, 42, 0.5); border: 5px solid #98C12A; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         editLine.setText(text)
         # Widgets.append(player1NameTxt)
         if hide:
@@ -112,5 +181,12 @@ class Meni(QWidget):
             widget.hide()
         self.bgImg.hide()
 
+    def ShowMainMenu(self):
+        self.OptionsSubMenuHide()
+        self.bgImg.show()
+
     def exitClicked(self):
         sys.exit(0)
+
+if __name__ == '__main__':
+    pass

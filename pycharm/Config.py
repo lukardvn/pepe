@@ -6,8 +6,24 @@ class Config:
     serverAddress = "127.0.0.1"
     serverPort = 21241
     bufferSize = 15000
+
+    #prljavo resenje da se ovde pamte podaci prilikom prelaska na veci nivo, ali znatno olaksava posao, nego da se zaba ne obrise jer
+    #nije jedina u lejeru zaba, plus ne bude vidljiva kad se novi nivo pojavi, jer se on napravi preko nje, tako da je ovo lakse
+    p1Lives = 5
+    p2Lives = 5
+    p1Score = 0
+    p2Score = 0
+    p1Name = 'Player1'
+    p2Name = 'Player2'
+
+    speedChange = 1.5
+
+    twoPl = False
+
+    font_family = "Niagara Solid"
+
                             #X, Y
-    player1StartPosition = (10,14)
+    player1StartPosition = (11,14)
     player2StartPosition = (3,14)
 
     newLaneYIndex = 0 #globalni brojac gde treba da se nalazi novi lane u gridu
@@ -20,6 +36,7 @@ class Config:
     lilypadPatternBO5V2 = "100100010001001"
     lilypadPatternBO5V3 = "010001010100010"
     lilypadPatternBO3 = "000100010001000"
+    safetyLaneDeusPattern = "100000000000000"
 
     #sprajtovi
     spriteLocation = "sprites/"
@@ -129,6 +146,9 @@ class Config:
         (5, 9.15, 260, laneTypeWater)
     ]
 
+    highscore_filename = "hs.txt"
+    
+
     #kljucne reci za komunikaciju izmedju servera i klijenta
     kreirajSveObjekteNaKlijentu = "INITOBJS"
     updateSveObjekteNaKlijentu = "UPDATEOBJS"
@@ -136,3 +156,7 @@ class Config:
     potvrdaKlijentaDaJeNapravioSveObjekte = "objsCreated"
     serverWelcomeMsg = "welcome"
     clientIsReady = "ready"
+    
+
+if __name__ == '__main__':
+    pass
