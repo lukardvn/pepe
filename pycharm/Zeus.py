@@ -30,14 +30,17 @@ class Zeus:
         self.vreme = random.choice(['s', 'n', 'k', 'n', 'n', 'n']) #da budu vece sanse da je suncano nego kisa/sneg
         self.kju.put(self.vreme)
 
-def PokreniZevsa(kju):
+def _zevseOvoRadi(kju):
     zevs = Zeus(kju, 3,7,1,3)
     zevs.MakeItRain()
 
+def PokreniZevs(kju):
+    proc = mp.Process(target=_zevseOvoRadi, args=(kju,))
+    proc.start()
+
 def Main():
     q = Queue()
-    proc = mp.Process(target=PokreniZevsa, args=(q,))
-    proc.start()
+    PokreniZevs(q)
 
     while True:
         print(q.get())
