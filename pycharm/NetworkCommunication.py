@@ -91,3 +91,22 @@ class Client(QtCore.QThread):
         while self.radi:
             msg = self.sendQueue.get()
             conn.sendall(msg)
+
+if __name__ == "__main__":
+    klijent = True
+    adresaServera = "127.0.0.1"
+    port = 22233
+    buffer = 1000
+
+    if klijent:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((adresaServera, port))
+            print("Primio sam od servera " + s.recv(buffer).decode('utf-8'))
+    else:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((adresaServera, port))
+            s.listen()
+            print("Slusam na portu " + str(port))
+            conn, addr = s.accept()
+            conn.sendall(b'Saljem klijentu, ja sam server')
+
