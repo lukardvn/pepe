@@ -392,7 +392,7 @@ class Frogger(QWidget):
             pass    #ako se trenutno nalazi u meniju, kisa i sneg se ne pojavljuju
         else:
             numTip = random.getrandbits(1)
-            randomTime = random.randint(5, 10)
+            randomTime = random.randint(6, 12)
             if numTip == 1: #ako je 1 pocinje kisa
                 self.PokreniKisu()
                 QTimer.singleShot(randomTime*1000, self.ZaustaviKisu) #vreme kojiko ce kisa padati, pa se poziva zaustavljenje

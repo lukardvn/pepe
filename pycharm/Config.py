@@ -12,7 +12,7 @@ class Config:
     p1Name = 'Player1'
     p2Name = 'Player2'
 
-    speedChange = 2
+    speedChange = 1.5
 
     twoPl = False
 
