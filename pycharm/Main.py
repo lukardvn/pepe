@@ -249,13 +249,17 @@ class Frogger(QWidget):
             return
 
         if vremenskiUslov == 'k':
-            if self.padavina == 's':
+            if self.padavina == 'k':
+                self.ZaustaviKisu()
+            elif self.padavina == 's':
                 self.ZaustaviSneg()
             self.PokreniKisu()
             self.padavina = 'k'
         elif vremenskiUslov == 's':
             if self.padavina == 'k':
                 self.ZaustaviKisu()
+            elif self.padavina == 's':
+                self.ZaustaviSneg()
             self.PokreniSneg()
             self.padavina = 's'
         elif vremenskiUslov == 'n':
