@@ -7,9 +7,9 @@ import threading
 class Host(QtCore.QThread):
     receiveCallBack = QtCore.pyqtSignal(object)
 
-    def __init__(self, port):
+    def __init__(self, serverAddress, port):
         QtCore.QThread.__init__(self)
-        self.HOST = '127.0.0.1'
+        self.HOST = serverAddress
         self.PORT = port
         self.radi = True
         self.sendQueue = Queue()
@@ -93,6 +93,7 @@ class Client(QtCore.QThread):
             conn.sendall(msg)
 
 if __name__ == "__main__":
+    #ovo je samo za testiranje
     klijent = True
     adresaServera = "127.0.0.1"
     port = 22233

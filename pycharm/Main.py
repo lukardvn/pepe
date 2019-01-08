@@ -74,7 +74,7 @@ class Frogger(QWidget):
         self.CreatePlayers(TwoPlayers=True)
 
     def MainMenuHostClick(self):
-        self.HostServer(Config.serverPort)
+        self.HostServer(Config.serverAddress, Config.serverPort)
 
     def MainMenuJoinClick(self):
         self.JoinServer(Config.serverAddress, Config.serverPort)
@@ -170,9 +170,9 @@ class Frogger(QWidget):
     #FUNKCIJE ISPOD SE KORISTE SAMO ZA MULITPLAYER
     ################################################################################
 
-    def HostServer(self, port):
+    def HostServer(self, address, port):
         self.isHost = True
-        self.host = Host(port)
+        self.host = Host(address, port)
         self.host.receiveCallBack.connect(self.ReceiveFromClient)
         self.host.start()
 
