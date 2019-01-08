@@ -99,3 +99,6 @@ class Obstacle(Rectangle):
     @staticmethod
     def getRandomLog(speed):
         return Obstacle.getRandomSprite(Config.availableLogs, speed)
+
+if __name__ == '__main__':
+    pass

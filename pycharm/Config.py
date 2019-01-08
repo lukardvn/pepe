@@ -143,3 +143,6 @@ class Config:
     ]
 
     highscore_filename = "hs.txt"
+
+if __name__ == '__main__':
+    pass

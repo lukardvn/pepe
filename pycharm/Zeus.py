@@ -31,16 +31,16 @@ class Zeus:
         self.kju.put(self.vreme)
 
 def _zevseOvoRadi(kju):
-    zevs = Zeus(kju, 3,7,1,3)
+    zevs = Zeus(kju, 3, 7, 1, 3)
     zevs.MakeItRain()
 
-def PokreniZevs(kju):
+def PokreniZevsa(kju):
     proc = mp.Process(target=_zevseOvoRadi, args=(kju,))
     proc.start()
 
 def Main():
     q = Queue()
-    PokreniZevs(q)
+    PokreniZevsa(q)
 
     while True:
         print(q.get())

@@ -107,3 +107,6 @@ class Scoreboard(QWidget):
         for widget in self.p2Lives:
             widget.hide()
         self.p2Lives.clear()
+
+if __name__ == '__main__':
+    pass

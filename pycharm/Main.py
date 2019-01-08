@@ -13,7 +13,8 @@ from Score import Scoreboard
 from MainMenu import Meni
 from Highscore import HighScore
 import time, random
-
+from multiprocessing import Queue
+import Zeus
 
 
 class Frogger(QWidget):
@@ -39,9 +40,8 @@ class Frogger(QWidget):
         self.key_notifier.key_signal.connect(self.__update_position__)
         self.key_notifier.start()
 
-        self.RandomVremenskiUslovi()
-        #randomTimeForThis = random.randint(0,20)
-        #QTimer.singleShot(randomTimeForThis * 1000, self.RandomVremenskiUslovi)
+        self.queue = Queue()
+        Zeus.PokreniZevsa(self.queue)
 
 
     def __init_ui__(self):
@@ -64,12 +64,18 @@ class Frogger(QWidget):
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def SinglePlayerMode(self):
+        self.ClearZeusQueue()
         self.Menu.HideMainMenu()
         self.DisplayMap()
         self.scoreboard.ShowScore()
         self.CreatePlayers()
 
+    def ClearZeusQueue(self):
+        while not self.queue.empty():
+            self.queue.get()
+
     def TwoPlayerMode(self):
+        self.ClearZeusQueue()
         self.Menu.HideMainMenu()
         self.DisplayMap(TwoPlayers=True)
         self.scoreboard.ShowScores()
@@ -227,6 +233,7 @@ class Frogger(QWidget):
         self.updaterGameObjekataThread = GOUpdater()
         self.updaterGameObjekataThread.nekiObjekat.connect(self.updateAllGameObjects)
         self.updaterGameObjekataThread.start()
+        self.padavina = 'n'
 
     def stopThreadForUpdatingObjects(self):
         self.updaterGameObjekataThread.updaterThreadWork = False
@@ -234,6 +241,29 @@ class Frogger(QWidget):
     def updateAllGameObjects(self, dummy):
         for gameObject in GameObject.allGameObjects:
             gameObject.update()
+
+        if not self.queue.empty():
+            vremenskiUslov = self.queue.get()
+            print(vremenskiUslov)
+        else:
+            return
+
+        if vremenskiUslov == 'k':
+            if self.padavina == 's':
+                self.ZaustaviSneg()
+            self.PokreniKisu()
+            self.padavina = 'k'
+        elif vremenskiUslov == 's':
+            if self.padavina == 'k':
+                self.ZaustaviKisu()
+            self.PokreniSneg()
+            self.padavina = 's'
+        elif vremenskiUslov == 'n':
+            if self.padavina == 'k':
+                self.ZaustaviKisu()
+            elif self.padavina == 's':
+                self.ZaustaviSneg()
+            self.padavina = 'n'
 
     def createLanes(self, niz, type):
         #funkcija koja generise lejnove u zavisnosti od prosledjenog niza i karaktera u njemu
@@ -386,22 +416,6 @@ class Frogger(QWidget):
                  lane.ChangeSpeed(Config.speedChange)   #obrnuto, ako smo bili smanjili brzinu drveca kad je poceo sneg, sad je povecavamo, vracamo na default
             elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
                 lane.ChangeSpeed(-Config.speedChange)   #obrnuto, ako smo bili povecali brzinu automobila kad je poceo sneg, sad je smanjujemo, vracamo na default
-
-    def RandomVremenskiUslovi(self):
-        if self.Menu.bgImg.isVisible() == True: #provera da li smo u meniju ili je igra u toku, tako sto se proveri vidljivost pozadine
-            pass    #ako se trenutno nalazi u meniju, kisa i sneg se ne pojavljuju
-        else:
-            numTip = random.getrandbits(1)
-            randomTime = random.randint(6, 12)
-            if numTip == 1: #ako je 1 pocinje kisa
-                self.PokreniKisu()
-                QTimer.singleShot(randomTime*1000, self.ZaustaviKisu) #vreme kojiko ce kisa padati, pa se poziva zaustavljenje
-            else:   #ako je 0 pocinje sneg
-                self.PokreniSneg()
-                QTimer.singleShot(randomTime*1000, self.ZaustaviSneg)   #vreme kojiko ce sneg padati, pa se poziva zaustavljenje
-
-        randomTimeForThisFunct = random.randint(20, 40) #vreme za ponovan poziv ove funkcije
-        QTimer.singleShot(randomTimeForThisFunct * 1000, self.RandomVremenskiUslovi)
 
 if __name__ == '__main__':
 

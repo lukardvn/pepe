@@ -121,3 +121,6 @@ class Rectangle(GameObject):
         self.label.setGeometry(0, 0, 0, 0)
         self.label.hide()
         self.SetSize(0, 0)
+
+if __name__ == '__main__':
+    pass

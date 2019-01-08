@@ -18,6 +18,8 @@ class Meni(QWidget):
 
         self.kisa = self.KreirajGif('kisa.gif') #label za kisu, koji ce se samo preko mape prikazivati i sklanjati
         self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
+        movie = self.sneg.movie()
+        movie.setSpeed(200)
 
         self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc)
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
@@ -173,3 +175,5 @@ class Meni(QWidget):
     def exitClicked(self):
         sys.exit(0)
 
+if __name__ == '__main__':
+    pass

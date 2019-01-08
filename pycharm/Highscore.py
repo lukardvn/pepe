@@ -41,5 +41,5 @@ class HighScore:
 
             self.saveToFile()
 
-
-
+if __name__ == '__main__':
+    pass

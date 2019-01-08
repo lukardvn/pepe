@@ -219,3 +219,6 @@ class Frog(Rectangle):
                 self.GoUp()
             elif key == Qt.Key_Left:
                 self.GoLeft()
+
+if __name__ == '__main__':
+    pass

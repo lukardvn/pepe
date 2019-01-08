@@ -32,3 +32,6 @@ class Lilypad(Rectangle):
         #    if self.brojac == 3:
         #        self.levelPassed()
         #        self.brojac = 0
+
+if __name__ == '__main__':
+    pass

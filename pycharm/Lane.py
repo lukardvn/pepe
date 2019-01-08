@@ -158,3 +158,6 @@ class Lane(Rectangle):
             print("Sablon za final lejn nije dobar")
 
         return l
+
+if __name__ == '__main__':
+    pass
