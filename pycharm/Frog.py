@@ -109,7 +109,7 @@ class Frog(Rectangle):
         currentPosition = super().GetPosition()
         newXcoord = currentPosition[0] + Config.gridSize * x
         newYcoord = currentPosition[1] + Config.gridSize * y
-        print(newXcoord,newYcoord)
+        #print(newXcoord,newYcoord)
         self.deus(newXcoord,newYcoord)
         super().SetPosition(newXcoord, newYcoord)
 
@@ -141,7 +141,7 @@ class Frog(Rectangle):
         if self.x == 0 :
             return
 
-        if not self.IsEmpty(-1,0):
+        if not self.IsEmpty(-1, 0):
             return
 
         self.Move(-1,0)

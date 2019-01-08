@@ -34,6 +34,15 @@ class Lane(Rectangle):
         if self.numberOfObstacles > 0:
             self.InitObstacles()
 
+    def ChangeSpeed(self, speed):
+        if self.speed > 0:
+            for obj in self.obstacles:
+                obj.speed += speed
+        else:
+            for obj in self.obstacles:
+                obj.speed -= speed
+
+
     def InitObstacles(self):
         self.GenerateObstacles()
         self.SetFollowers()

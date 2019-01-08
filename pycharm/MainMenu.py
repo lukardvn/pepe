@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit
+from PyQt5.QtGui import QPixmap, QMovie
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit,QVBoxLayout
 from Config import Config
 
 class Meni(QWidget):
@@ -16,9 +16,38 @@ class Meni(QWidget):
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.kisa = self.KreirajGif('kisa.gif') #label za kisu, koji ce se samo preko mape prikazivati i sklanjati
+        self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
+
         self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc)
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
         self.hsElements = []
+
+    def KreirajGif(self, gif):  #kreira se Qlabel sa gif slikom u pozadini
+        label = QLabel(self.qWidget)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        loading_movie = QMovie(Config.spriteLocation + gif)
+        label.setMovie(loading_movie)
+        size = QtCore.QSize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        label.movie().setScaledSize(size)
+        loading_movie.start()
+        label.hide()
+        return label
+
+    def PrikaziPadavinu(self, tip):
+        if tip == 'kisa':
+            self.kisa.show()
+            self.kisa.raise_()
+        elif tip == 'sneg':
+            self.sneg.show()
+            self.sneg.raise_()
+
+    def SakrijPadavinu(self, tip):
+        if tip == 'kisa':
+            self.kisa.hide()
+        elif tip == 'sneg':
+            self.sneg.hide()
 
     def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc):
         listaWidgeta = []

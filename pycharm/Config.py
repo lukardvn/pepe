@@ -12,6 +12,8 @@ class Config:
     p1Name = 'Player1'
     p2Name = 'Player2'
 
+    speedChange = 2
+
     twoPl = False
 
     font_family = "Niagara Solid"

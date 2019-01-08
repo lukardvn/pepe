@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5 import QtGui
 from key_notifier import KeyNotifier
 from Config import Config
 from Frog import Frog
@@ -12,6 +12,9 @@ from random import shuffle, randrange
 from Score import Scoreboard
 from MainMenu import Meni
 from Highscore import HighScore
+import time, random
+
+
 
 class Frogger(QWidget):
     def __init__(self):
@@ -35,6 +38,10 @@ class Frogger(QWidget):
         self.key_notifier = KeyNotifier()
         self.key_notifier.key_signal.connect(self.__update_position__)
         self.key_notifier.start()
+
+        self.RandomVremenskiUslovi()
+        #randomTimeForThis = random.randint(0,20)
+        #QTimer.singleShot(randomTimeForThis * 1000, self.RandomVremenskiUslovi)
 
 
     def __init_ui__(self):
@@ -124,6 +131,8 @@ class Frogger(QWidget):
         Config.p2Score = 0
         Config.p1Lives = 5
         Config.p2Lives = 5
+        self.Menu.kisa.hide()
+        self.Menu.sneg.hide()
 
     def LevelPassed(self):
         #fja koja se poziva kad su svih 5 Lilypada popunjena, prosledjuje se u konstruktoru, prvo finalLejnu pa samim objektima
@@ -346,7 +355,56 @@ class Frogger(QWidget):
         shuffle(nizTezine)  #permutuj niz da lejnovi budu random
         self.createLanes(nizTezine, type)
 
+    def PokreniKisu(self):  #Fja da se prikaze kisa
+        self.Menu.PrikaziPadavinu('kisa')
+        for lane in self.Map:
+            if lane.laneType == Config.laneTypeWater:
+                lane.ChangeSpeed(Config.speedChange)    #brzina drveca se povecava kad je kisa
+            elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
+                lane.ChangeSpeed(-Config.speedChange)   #brzina automobila se smanjuje kad je kisa
+
+    def PokreniSneg(self): #Fja da se prikaze sneg
+        self.Menu.PrikaziPadavinu('sneg')
+        for lane in self.Map:
+            if lane.laneType == Config.laneTypeWater:
+                lane.ChangeSpeed(-Config.speedChange)   #brzina drveca se smanjuje kad je sneg
+            elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
+                lane.ChangeSpeed(Config.speedChange)    #brzina automobila se povecava kad je sneg
+
+    def ZaustaviKisu(self): #Fja da se zaustavi kisa
+        self.Menu.SakrijPadavinu('kisa')
+        for lane in self.Map:
+            if lane.laneType == Config.laneTypeWater:
+                lane.ChangeSpeed(-Config.speedChange)   #obrnuto, ako smo bili povecali brzinu drveca kad je kisa pocela, sad je smanjujemo, vracamo na default
+            elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
+                lane.ChangeSpeed(Config.speedChange)    #obrnuto, ako smo bili smanjili brzinu automobila kad je kisa pocela, sad je povecavamo, vracamo na default
+
+    def ZaustaviSneg(self): #Fja da se zaustavi sneg
+        self.Menu.SakrijPadavinu('sneg')
+        for lane in self.Map:
+            if lane.laneType == Config.laneTypeWater:
+                 lane.ChangeSpeed(Config.speedChange)   #obrnuto, ako smo bili smanjili brzinu drveca kad je poceo sneg, sad je povecavamo, vracamo na default
+            elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
+                lane.ChangeSpeed(-Config.speedChange)   #obrnuto, ako smo bili povecali brzinu automobila kad je poceo sneg, sad je smanjujemo, vracamo na default
+
+    def RandomVremenskiUslovi(self):
+        if self.Menu.bgImg.isVisible() == True: #provera da li smo u meniju ili je igra u toku, tako sto se proveri vidljivost pozadine
+            pass    #ako se trenutno nalazi u meniju, kisa i sneg se ne pojavljuju
+        else:
+            numTip = random.getrandbits(1)
+            randomTime = random.randint(5, 10)
+            if numTip == 1: #ako je 1 pocinje kisa
+                self.PokreniKisu()
+                QTimer.singleShot(randomTime*1000, self.ZaustaviKisu) #vreme kojiko ce kisa padati, pa se poziva zaustavljenje
+            else:   #ako je 0 pocinje sneg
+                self.PokreniSneg()
+                QTimer.singleShot(randomTime*1000, self.ZaustaviSneg)   #vreme kojiko ce sneg padati, pa se poziva zaustavljenje
+
+        randomTimeForThisFunct = random.randint(20, 40) #vreme za ponovan poziv ove funkcije
+        QTimer.singleShot(randomTimeForThisFunct * 1000, self.RandomVremenskiUslovi)
+
 if __name__ == '__main__':
+
     app = QApplication(sys.argv)
     ex = Frogger()
     sys.exit(app.exec_())
