@@ -31,7 +31,7 @@ class Meni(QWidget):
 
         self.joinElements = self.JoinWidgetsInit(funcJoinGame)
         self.ipaddr = ""
-        self.port = ""
+        self.port = Config.serverPort
 
 
     def KreirajGif(self, gif):  #kreira se Qlabel sa gif slikom u pozadini
@@ -86,7 +86,7 @@ class Meni(QWidget):
         joinWidgets.append(self.AddLabel("ipAddress", 50, 200, "IP ADDRESS:", hide=True))
         joinWidgets.append(self.AddLabel("port", 50, 300, "PORT:", hide=True))
         joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, "", hide=True, OnJoin=self.SetIPAddress))
-        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, "", hide=True, OnJoin=self.SetPort))
+        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, Config.serverPort , hide=True, OnJoin=self.SetPort))
         joinWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, joinGame, hide=True))
         return joinWidgets
 
@@ -136,6 +136,11 @@ class Meni(QWidget):
 
         for element in self.joinElements:
             element.show()
+
+    def JoinWidgetHide(self):
+        for element in self.joinElements:
+            element.hide()
+            element.setFocusPolicy(QtCore.Qt.NoFocus)
 
     #Fja koja se izvrsava prilikom klika na Ok button u okviru Options prozora
     def OptionsSubMenuHide(self):
@@ -194,7 +199,7 @@ class Meni(QWidget):
         editLine.move(x, y)
         editLine.resize(width, height)
         editLine.setStyleSheet("QLineEdit#" + objectName + " {background: rgba(152, 193, 42, 0.5); border: 5px solid #98C12A; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
-        editLine.setText(text)
+        editLine.setText(str(text))
         # Widgets.append(player1NameTxt)
         if hide:
             editLine.hide()
@@ -209,12 +214,14 @@ class Meni(QWidget):
 
     def SetIPAddress(self):
         self.ipAddr = self.joinElements[2].text()
-        print(self.ipAddr)
+        #print(self.ipAddr)
+        #self.joinElements[2].setFocusPolicy(QtCore.Qt.NoFocus)
         #self.ipaddr = key
 
     def SetPort(self):
         self.port = self.joinElements[3].text()
-        print(self.port)
+        #print(self.port)
+        #self.joinElements[3].setFocusPolicy(QtCore.Qt.NoFocus)
         #self.port = key
 
     def HideMainMenu(self):
