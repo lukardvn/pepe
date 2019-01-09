@@ -72,11 +72,9 @@ class Scoreboard(QWidget):
 
 
     def updateP1Score(self, score):
-        #print('Pozvao P1')
         self.allWidgets[0].setText(str(score))
 
     def updateP2Score(self, score):
-        #print('Pozvao P2')
         self.allWidgets[1].setText(str(score))
 
     def HideScores(self):

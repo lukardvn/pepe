@@ -4,11 +4,13 @@ from Config import Config
 from GameObject import GameObject
 
 class Rectangle(GameObject):
-
+    id = 1
     allRectangles = {}
 
     def __init__(self, x, y, w, h, sprite, layer=Config.layerDefault):
         super().__init__()
+        self.id = Rectangle.id #svaka rektangla dobija unikatan ID, ovo se jedino koristi za mulitplayer. Da mogu objekti da se sinhronizuju izmedju klijenta i servera
+        Rectangle.id += 1
         self.x = x
         self.y = y
         self.w = w
@@ -17,6 +19,7 @@ class Rectangle(GameObject):
         self.loadedSprite = sprite
         self.pixmap = QPixmap(Config.spriteLocation + sprite)
         self.label = QLabel(Config.mainWindow)
+        self.isVisible = False
 
         self.AddToLayer(layer)
 
@@ -42,6 +45,7 @@ class Rectangle(GameObject):
         self.label.setPixmap(self.pixmap)
         self.label.setGeometry(self.x, self.y, self.w, self.h)
         self.label.show()
+        self.isVisible = True
 
     def Collision(self, other):
         top, right, bottom, left = self.GetSides()
@@ -87,6 +91,10 @@ class Rectangle(GameObject):
         return True
 
     def ChangeSprite(self, spriteName):
+        #ovo se koristi da skloni zabu na klijentu. JAKO JE PRLJAVO RESENJE. BICE POSTAVLJENO IZ FUNKCIJE UpdateObjectsPosition u Main.py
+        if spriteName == "DEAD":
+            self.RemoveFromScreen()
+
         if spriteName != self.loadedSprite:
             self.loadedSprite = spriteName
             self.pixmap = QPixmap(Config.spriteLocation + spriteName)
@@ -114,13 +122,18 @@ class Rectangle(GameObject):
         self.h = h
         self.label.setGeometry(self.x, self.y, self.w, self.h)
 
+    @staticmethod
+    def ResetId():
+        Rectangle.id = 1
+
     def GetSize(self):
         return (self.w, self.h)
-
-    def Hide(self):
+        
+    def RemoveFromScreen(self):
         self.label.setGeometry(0, 0, 0, 0)
         self.label.hide()
         self.SetSize(0, 0)
+        self.label.setParent(None)
 
 if __name__ == '__main__':
     pass

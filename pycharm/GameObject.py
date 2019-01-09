@@ -19,11 +19,22 @@ class GOUpdater(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
         self.updaterThreadWork = True
+        self.pause = False
+
+    def PauseGame(self):
+        self.pause = True
+
+    def ResumeGame(self):
+        self.pause = False
 
     def run(self):
         while self.updaterThreadWork:
-            self.nekiObjekat.emit(1)
-            time.sleep(1 / Config.FPS)
+            try:
+                if not self.pause:
+                    self.nekiObjekat.emit(1)
+                time.sleep(1 / Config.FPS)
+            except:
+                break #zavrsavamo thread
 
 if __name__ == '__main__':
     pass

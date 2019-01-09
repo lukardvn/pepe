@@ -28,6 +28,8 @@ class Frog(Rectangle):
 
         self.playerName = Config.p1Name
         self.sprite = self.spriteUpP1
+        self.keyBoardInputEnabled = True #koristi se za mulitplejer (tad se postavi na False), da ne moze drugi igrac da se kontrolise kad je multiplayer mod
+        
         self.lives = Config.p1Lives
         self.score = Config.p1Score
 
@@ -63,9 +65,14 @@ class Frog(Rectangle):
             if self.CollidedWithObstacle():
                 self.Die()
 
-        lokvanj = self.CollidedWithLilypad()
-        if lokvanj != None:
-            lokvanj.usedByPlayer(self,Config.twoPl)
+        lilypad = self.CollidedWithLilypad()
+        if lilypad != None:
+            lilypad.usedByPlayer(self,Config.twoPl)
+
+    def IsAlive(self):
+        if self.lives > 0:
+            return True
+        return False
 
     def CollidedWithLilypad(self):
         return self.CollisionLayerSpecific(Config.layerLilypad, returnObject=True)
@@ -201,24 +208,25 @@ class Frog(Rectangle):
             self.SetPosition(newX, self.y)
 
     def KeyPress(self, key):
-        if self.isPlayerTwo:
-            if key == Qt.Key_D:
-                self.GoRight()
-            elif key == Qt.Key_S:
-                self.GoDown()
-            elif key == Qt.Key_W:
-                self.GoUp()
-            elif key == Qt.Key_A:
-                self.GoLeft()
-        else:
-            if key == Qt.Key_Right:
-                self.GoRight()
-            elif key == Qt.Key_Down:
-                self.GoDown()
-            elif key == Qt.Key_Up:
-                self.GoUp()
-            elif key == Qt.Key_Left:
-                self.GoLeft()
+        if self.keyBoardInputEnabled:   #bice false kad se igra multiplajer (za igraca 2 jer se on kontrolise preko mreze)
+            if self.isPlayerTwo:
+                if key == Qt.Key_D:
+                    self.GoRight()
+                elif key == Qt.Key_S:
+                    self.GoDown()
+                elif key == Qt.Key_W:
+                    self.GoUp()
+                elif key == Qt.Key_A:
+                    self.GoLeft()
+            else:
+                if key == Qt.Key_Right:
+                    self.GoRight()
+                elif key == Qt.Key_Down:
+                    self.GoDown()
+                elif key == Qt.Key_Up:
+                    self.GoUp()
+                elif key == Qt.Key_Left:
+                    self.GoLeft()
 
 if __name__ == '__main__':
     pass

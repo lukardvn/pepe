@@ -4,24 +4,28 @@ from PyQt5.QtGui import QPixmap, QMovie
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QLineEdit,QVBoxLayout
 from Config import Config
 
+
 class Meni(QWidget):
-    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc):
+    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame, funcCloseWindow):
         super().__init__()
         self.allWidgets = []
         self.qWidget = QWidget
 
+        self.funcCloseWindow = funcCloseWindow
+
         self.bgImg = QLabel(QWidget)
-        pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png") #prva verzija pozadine MainMenu.png
+        pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png")
         pixmap = pixmap.scaled(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.bgImg.setPixmap(pixmap)
         self.bgImg.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bgImg.show()
 
         self.kisa = self.KreirajGif('kisa.gif') #label za kisu, koji ce se samo preko mape prikazivati i sklanjati
         self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
         movie = self.sneg.movie()
         movie.setSpeed(200)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame)
 
-        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc)
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
         self.hsElements = []
 
@@ -45,20 +49,23 @@ class Meni(QWidget):
             self.sneg.show()
             self.sneg.raise_()
 
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc, hostOnClick, joinOnClick):
+        listaWidgeta = []
+        listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 170, 400, 70, singlePlayerOnClick))
+        listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 250, 400, 70, twoPlayerOnClick))
+        listaWidgeta.append(self.AddButton("JoinGameWidget", "widgetsJoin", 5, 330, 400, 70, joinOnClick))
+        listaWidgeta.append(self.AddButton("HostGameWidget", "widgetsHost", 5, 410, 400, 70, hostOnClick))
+        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 490, 400, 70, highscoresFunkc))
+        listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 570, 400, 70, self.OptionsSubMenuShow))
+        listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 650, 400, 70, self.exitClicked))
+        return listaWidgeta
+
     def SakrijPadavinu(self, tip):
         if tip == 'kisa':
             self.kisa.hide()
         elif tip == 'sneg':
             self.sneg.hide()
 
-    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc):
-        listaWidgeta = []
-        listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 200, 400, 70, singlePlayerOnClick))
-        listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 300, 400, 70, twoPlayerOnClick))
-        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 400, 400, 70, highscoresFunkc))
-        listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 500, 400, 70, self.OptionsSubMenuShow))
-        listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 600, 400, 70, self.exitClicked))
-        return listaWidgeta
 
     def OptionsSubMenuInit(self, exitMenuOnClick=None):
         optionsWidgets = []
@@ -69,23 +76,29 @@ class Meni(QWidget):
         optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
 
+    # def HsElementsInit(self, nizTop3):
+    #     widgets = []
+    #     y = 200
+    #     for item in nizTop3:
+    #         widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+    #         y += 100
+    #     widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
+    #     return widgets
+
+    #isto radi kao ova funkcija iznad samo koristi YIELD, da naucite sta je yield (moze da se primeni na svaku funkciju koja vraca neki niz)
     def HsElementsInit(self, nizTop3):
-        widgets = []
         y = 200
         for item in nizTop3:
-            widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+            yield self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]))
             y += 100
-        widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
-        return widgets
+        yield self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide)
 
     def HsElementsShow(self, nizTop3):
         for widget in self.allWidgets:
             widget.hide()
 
-        self.hsElements = self.HsElementsInit(nizTop3)
-
-        for item in self.hsElements:
-            item.show()
+        for elem in self.HsElementsInit(nizTop3): #evo primena funkcije koja koristi yield. TZV. funkcije generatori
+            self.hsElements.append(elem)
 
     def HsElementsHide(self):
         for item in self.hsElements:
@@ -125,14 +138,17 @@ class Meni(QWidget):
         btn = QPushButton(self.qWidget)
         btn.setObjectName(objectName)
         btn.setStyleSheet(
-            "QPushButton#"+objectName+" { border-image: url('sprites/"+sprite+".png') 0 0 0 0 stretch stretch;} QPushButton#"+objectName+":hover { border-image: url('sprites/"+sprite+"Hover.png') 0 0 0 0 stretch stretch;}")
+            "QPushButton#" + objectName + " { border-image: url('sprites/" + sprite + ".png') 0 0 0 0 stretch stretch;} QPushButton#" + objectName + ":hover { border-image: url('sprites/" + sprite + "Hover.png') 0 0 0 0 stretch stretch;}")
         btn.resize(width, height)
         btn.move(x, y)
         if onClick != None:
             btn.clicked.connect(onClick)
         btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
         if hide:
             btn.hide()
+        else:
+            btn.show()
 
         self.allWidgets.append(btn)
         return btn
@@ -141,11 +157,13 @@ class Meni(QWidget):
         lbl = QLabel(self.qWidget)
         lbl.setObjectName(objectName)
         lbl.move(x, y)
-        lbl.setStyleSheet(
-            "QLabel#"+objectName+" {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
+        lbl.setStyleSheet("QLabel#" + objectName + " {background: rgb(255, 255, 255) transparent; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         lbl.setText(text)
         if hide:
             lbl.hide()
+        else:
+            lbl.show()
+
         self.allWidgets.append(lbl)
         return lbl
 
@@ -154,15 +172,17 @@ class Meni(QWidget):
         editLine.setObjectName(objectName)
         editLine.move(x, y)
         editLine.resize(width, height)
-        editLine.setStyleSheet(
-            "QLineEdit#"+objectName+" {background: rgba(152, 193, 42, 0.5); border: 5px solid #98C12A; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
+        editLine.setStyleSheet("QLineEdit#" + objectName + " {background: rgba(152, 193, 42, 0.5); border: 5px solid #98C12A; color: 'White'; font-family: '" + Config.font_family + "'; font-size: 70px;}")
         editLine.setText(text)
         # Widgets.append(player1NameTxt)
         if hide:
             editLine.hide()
+        else:
+            editLine.show()
+
         self.allWidgets.append(editLine)
         return editLine
-        
+
     def HideMainMenu(self):
         for widget in self.allWidgets:
             widget.hide()
@@ -173,6 +193,7 @@ class Meni(QWidget):
         self.bgImg.show()
 
     def exitClicked(self):
+        self.funcCloseWindow()
         sys.exit(0)
 
 if __name__ == '__main__':
