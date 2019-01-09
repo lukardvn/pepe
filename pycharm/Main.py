@@ -330,7 +330,7 @@ class Frogger(QWidget):
         self.key_notifier.die()
 
     def closeEvent(self, event):
-        CloseWindow()
+        self.CloseWindow()
 
     def createThreadToUpdateGameObjects(self):
         self.updaterGameObjekataThread = GOUpdater()
