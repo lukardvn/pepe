@@ -24,10 +24,15 @@ class Meni(QWidget):
         self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
         movie = self.sneg.movie()
         movie.setSpeed(200)
-        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame)
 
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
         self.hsElements = []
+
+        self.joinElements = self.JoinWidgetsInit(funcJoinGame)
+        self.ipaddr = ""
+        self.port = ""
+
 
     def KreirajGif(self, gif):  #kreira se Qlabel sa gif slikom u pozadini
         label = QLabel(self.qWidget)
@@ -49,11 +54,11 @@ class Meni(QWidget):
             self.sneg.show()
             self.sneg.raise_()
 
-    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc, hostOnClick, joinOnClick):
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc, hostOnClick):
         listaWidgeta = []
         listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 170, 400, 70, singlePlayerOnClick))
         listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 250, 400, 70, twoPlayerOnClick))
-        listaWidgeta.append(self.AddButton("JoinGameWidget", "widgetsJoin", 5, 330, 400, 70, joinOnClick))
+        listaWidgeta.append(self.AddButton("JoinGameWidget", "widgetsJoin", 5, 330, 400, 70, self.JoinWidgetsShow))
         listaWidgeta.append(self.AddButton("HostGameWidget", "widgetsHost", 5, 410, 400, 70, hostOnClick))
         listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 490, 400, 70, highscoresFunkc))
         listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 570, 400, 70, self.OptionsSubMenuShow))
@@ -75,6 +80,15 @@ class Meni(QWidget):
         optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, "Player2", hide=True))
         optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
+
+    def JoinWidgetsInit(self, joinGame=None):
+        joinWidgets = []
+        joinWidgets.append(self.AddLabel("ipAddress", 50, 200, "IP ADDRESS:", hide=True))
+        joinWidgets.append(self.AddLabel("port", 50, 300, "PORT:", hide=True))
+        joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, "", hide=True, OnJoin=self.SetIPAddress))
+        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, "", hide=True, OnJoin=self.SetPort))
+        joinWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, joinGame, hide=True))
+        return joinWidgets
 
     # def HsElementsInit(self, nizTop3):
     #     widgets = []
@@ -114,6 +128,13 @@ class Meni(QWidget):
             btn.hide()
 
         for element in self.optionsElements:
+            element.show()
+
+    def JoinWidgetsShow(self):
+        for btn in self.mainButtons:
+            btn.hide()
+
+        for element in self.joinElements:
             element.show()
 
     #Fja koja se izvrsava prilikom klika na Ok button u okviru Options prozora
@@ -167,7 +188,7 @@ class Meni(QWidget):
         self.allWidgets.append(lbl)
         return lbl
 
-    def AddEditLine(self, objectName, x, y, width, height, text, hide=False):
+    def AddEditLine(self, objectName, x, y, width, height, text, hide=False, OnJoin=None):
         editLine = QLineEdit(self.qWidget)
         editLine.setObjectName(objectName)
         editLine.move(x, y)
@@ -180,8 +201,21 @@ class Meni(QWidget):
         else:
             editLine.show()
 
+        if OnJoin != None:
+            editLine.textChanged.connect(OnJoin)
+
         self.allWidgets.append(editLine)
         return editLine
+
+    def SetIPAddress(self):
+        self.ipAddr = self.joinElements[2].text()
+        print(self.ipAddr)
+        #self.ipaddr = key
+
+    def SetPort(self):
+        self.port = self.joinElements[3].text()
+        print(self.port)
+        #self.port = key
 
     def HideMainMenu(self):
         for widget in self.allWidgets:
