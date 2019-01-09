@@ -7,10 +7,13 @@ class Rectangle(GameObject):
     id = 1
     allRectangles = {}
 
-    def __init__(self, x, y, w, h, sprite, layer=Config.layerDefault):
+    def __init__(self, x, y, w, h, sprite, layer=Config.layerDefault, forceId=-1):
         super().__init__()
-        self.id = Rectangle.id #svaka rektangla dobija unikatan ID, ovo se jedino koristi za mulitplayer. Da mogu objekti da se sinhronizuju izmedju klijenta i servera
-        Rectangle.id += 1
+        if forceId == -1: #ovo se koristi samo na klijentu kad se kreiraju objekti
+            self.id = Rectangle.id #svaka rektangla dobija unikatan ID, ovo se jedino koristi za mulitplayer. Da mogu objekti da se sinhronizuju izmedju klijenta i servera
+            Rectangle.id += 1
+        else:
+            self.id = forceId
         self.x = x
         self.y = y
         self.w = w

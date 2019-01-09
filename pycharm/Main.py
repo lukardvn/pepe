@@ -102,6 +102,7 @@ class Frogger(QWidget):
         self.startThreadForUpdatingGameObjects()
         self.scoreboard.ShowScore()
         self.CreatePlayers()
+        Config.collectLilypadsToAdvanceLevel = 1
 
     def ClearZeusQueue(self):
         while not self.queue.empty():
@@ -116,6 +117,7 @@ class Frogger(QWidget):
         self.DisplayMap(TwoPlayers=True)
         self.scoreboard.ShowScores()
         self.CreatePlayers(TwoPlayers=True)
+        Config.collectLilypadsToAdvanceLevel = 1
 
     def MainMenuHostClick(self):
         self.HostServer(Config.serverAddress, Config.serverPort)
@@ -231,6 +233,9 @@ class Frogger(QWidget):
             self.player1.RemoveFromScreen()
             self.player1 = None
         #TODO: TREBA DODATI DA JAVI KLIJENTU DA SE UPDATEUJE LEVEL
+
+        if self.isHost and self.player2 != None:
+            self.SendClientToReplicateObjects()
 
     def DeleteMap(self, deleteP1=False, deleteP2=False):
         if deleteP1:
@@ -552,13 +557,17 @@ class Frogger(QWidget):
         self.client.receiveCallBack.connect(self.ReceiveFromServer)
         self.client.start()
 
+    def SendClientToReplicateObjects(self):
+        self.host.SendToClient(Config.network_kreirajSveObjekteNaKlijentu + ":" + self.CreateInitObjectsString())
+
     # ovo ce biti pozvano kad server primi poruku od klijenta
     def ReceiveFromClient(self, data):
         # print("Primio od klijenta: " + str(data))
         if data == Config.network_clientIsReady:  # kad primi ovo znaci da se klijent povezao
             self.TwoPlayerMode(OverNetworkGame=True)
+            Config.collectLilypadsToAdvanceLevel = 3
             self.player2.keyBoardInputEnabled = False
-            self.host.SendToClient(Config.network_kreirajSveObjekteNaKlijentu + ":" + self.CreateInitObjectsString())
+            self.SendClientToReplicateObjects()
         elif data == Config.network_potvrdaKlijentaDaJeNapravioSveObjekte:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pravimo i pokrecemo thread koji updateuje igru)
             self.createThreadToUpdateGameObjects()
             self.startThreadForUpdatingGameObjects()
@@ -573,7 +582,6 @@ class Frogger(QWidget):
                 self.player2.GoLeft()
         elif "CONN_ERROR" == data:
             print("Klijent se spuco :(")
-
 
     # ovo ce biti pozvano kad klijent primi poruku od servera
     def ReceiveFromServer(self, data):
@@ -667,11 +675,17 @@ class Frogger(QWidget):
 
     #ova funkcija se poziva na klijentu, da napravi objekte iste kao sto su na serveru. Pozove se samo na pocetku
     def GenerateObjects(self, data):
+        for layer, listOfRects in Rectangle.allRectangles.items():
+            for rect in listOfRects:
+                rect.RemoveFromScreen()
+            listOfRects.clear()
+
+
         objs = data.split("#")
         Rectangle.ResetId()
         for obj in objs:
             objData = obj.split("%")
-            r = Rectangle(int(objData[2]), int(objData[3]), int(objData[4]), int(objData[5]), objData[1], layer=objData[0])
+            r = Rectangle(float(objData[2]), float(objData[3]), int(objData[4]), int(objData[5]), objData[1], layer=objData[0], forceId=int(objData[0]))
             r.Show()
 
     #ova funkcija se poziva na klijentu, sluzi za updateovanje (samo X i Y kordinate) svih rectanglova na klijentu.
