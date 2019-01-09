@@ -16,7 +16,7 @@ pokreni Main.py
 | ESC | Pause/Resume game |
 
 ## Objašnjenje mulitplayera preko mreže (neki podaci su zastareli)
-![objasnjenje](https://github.com/lukardvn/pepe/blob/multiplayerV2/objasnjenjeMultiplayer.png)
+![objasnjenje](https://github.com/lukardvn/pepe/blob/master/objasnjenjeMultiplayer.png)
 
 *dodatno: klijent nema nikakvu logiku, samo prikazuje objekte onako kako se nalaze na serveru. ne dešava se nikakva provera kolizije 
 niti bilo šta drugo (da li je žaba van ekrana ili ju je udario auto, to sve radi server). sve što klijent radi je da šalje input na server.
