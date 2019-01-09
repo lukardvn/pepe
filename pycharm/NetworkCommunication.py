@@ -9,7 +9,7 @@ class Host(QtCore.QThread):
 
     def __init__(self, serverAddress, port):
         QtCore.QThread.__init__(self)
-        self.HOST = serverAddress
+        self.HOST = "0.0.0.0" #bind na sve dostupne ip adrese
         self.PORT = port
         self.radi = True
         self.sendQueue = Queue()
