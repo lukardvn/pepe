@@ -13,12 +13,13 @@ class Host(QtCore.QThread):
         self.PORT = port
         self.radi = True
         self.sendQueue = Queue()
+        self.recvBufferString = ""
 
     def StopHosting(self):
         self.radi = False
 
     def SendToClient(self, obj):
-        self.sendQueue.put(obj.encode("utf-8"))
+        self.sendQueue.put((obj + Config.network_MessageEnd).encode("utf-8"))
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -32,15 +33,37 @@ class Host(QtCore.QThread):
 
                 tRecv.start()
                 tSend.start()
-                self.SendToClient(Config.serverWelcomeMsg) #inicijalna poruka. da klijent moze da pocne sekvencu za pocetak gejma
+                self.SendToClient(Config.network_serverWelcomeMsg) #inicijalna poruka. da klijent moze da pocne sekvencu za pocetak gejma
 
                 tRecv.join()
                 tSend.join()
 
     def receive(self, conn):
         while self.radi:
-            data = conn.recv(Config.bufferSize)
-            self.receiveCallBack.emit(data.decode("utf-8"))
+            messageEnd = False
+
+            while not messageEnd:
+                try:
+                    data = conn.recv(Config.bufferSize).decode("utf-8")
+                except:
+                    self.receiveCallBack.emit("CONN_ERROR")
+                    self.radi = False
+                    break
+                self.recvBufferString += data
+                if Config.network_MessageEnd in self.recvBufferString:
+                    messageEnd = True
+
+            entireMessagesReceived = self.recvBufferString.split(Config.network_MessageEnd)
+
+
+            if self.recvBufferString.endswith(Config.network_MessageEnd): #ovde ce uci ako posle kraja za poruku nema vise podataka
+                self.recvBufferString = ""
+            else: #ako posle kraja za poruku imaju podaci sledece poruke (ali ne svi) onda ce te podatke sto su ostali da sacuva u bufferu za sledece primanje
+                self.recvBufferString = entireMessagesReceived[-1]
+                entireMessagesReceived = entireMessagesReceived[:-1]
+
+            for msg in entireMessagesReceived:
+                self.receiveCallBack.emit(msg)
 
     def send(self, conn):
         while self.radi:
@@ -58,12 +81,13 @@ class Client(QtCore.QThread):
         self.remotePORT = remotePort  # The port used by the server
         self.radi = True
         self.sendQueue = Queue()
+        self.recvBufferString = ""
 
     def StopHosting(self):
         self.radi = False
 
     def SendToServer(self, obj):
-        self.sendQueue.put(obj.encode('utf-8'))
+        self.sendQueue.put((obj + Config.network_MessageEnd).encode('utf-8'))
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -80,12 +104,31 @@ class Client(QtCore.QThread):
 
     def receive(self, conn):
         while self.radi:
-            try:
-                data = conn.recv(Config.bufferSize)
-                self.receiveCallBack.emit(data.decode('utf-8'))
-            except:
-                self.receiveCallBack.emit("CONN_ERROR")
-                self.radi = False
+            messageEnd = False
+
+            while not messageEnd:
+                try:
+                    data = conn.recv(Config.bufferSize).decode("utf-8")
+                except:
+                    self.receiveCallBack.emit("CONN_ERROR")
+                    self.radi = False
+                    return
+
+                self.recvBufferString += data
+                if Config.network_MessageEnd in self.recvBufferString:
+                    messageEnd = True
+
+            entireMessagesReceived = self.recvBufferString.split(Config.network_MessageEnd)
+
+            if self.recvBufferString.endswith(
+                    Config.network_MessageEnd):  # ovde ce uci ako posle kraja za poruku nema vise podataka
+                self.recvBufferString = ""
+            else:  # ako posle kraja za poruku imaju podaci sledece poruke (ali ne svi) onda ce te podatke sto su ostali da sacuva u bufferu za sledece primanje
+                self.recvBufferString = entireMessagesReceived[-1]
+                entireMessagesReceived = entireMessagesReceived[:-1]
+
+            for msg in entireMessagesReceived:
+                self.receiveCallBack.emit(msg)
 
     def send(self, conn):
         while self.radi:

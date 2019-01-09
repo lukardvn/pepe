@@ -9,8 +9,9 @@ class Lilypad(Rectangle):
         self.levelPassed = lvlPassed
         self.brojac = 0
 
-    def usedByPlayer(self, player,isTwoPlayer):
+    def usedByPlayer(self, player, isTwoPlayer):
         self.lastPlayerOnLilypad = player
+
         if self.lastPlayerOnLilypad == None and self.loadedSprite != 'lilypadV2.png':
             self.ChangeSprite('lilypadV2.png')
         elif self.lastPlayerOnLilypad.isPlayerTwo:
@@ -21,11 +22,13 @@ class Lilypad(Rectangle):
             self.ChangeSprite('lilypadV2_player1.png')
             player.ReturnToStart()
             player.UpdateScore()
-        for rect in Rectangle.allRectangles[Config.layerLilypad]:
-            if rect.lastPlayerOnLilypad != None:
+
+
+        for lilypad in Rectangle.allRectangles[Config.layerLilypad]:
+            if lilypad.lastPlayerOnLilypad != None:
                 self.brojac += 1
 
-        if self.brojac == 5:
+        if self.brojac == Config.collectLilypadsToAdvanceLevel:
             self.levelPassed()
             self.brojac = 0
         #else:

@@ -16,6 +16,8 @@ class Config:
     p1Name = 'Player1'
     p2Name = 'Player2'
 
+    collectLilypadsToAdvanceLevel = 1
+
     speedChange = 1.5
 
     twoPl = False
@@ -150,12 +152,15 @@ class Config:
     
 
     #kljucne reci za komunikaciju izmedju servera i klijenta
-    kreirajSveObjekteNaKlijentu = "INITOBJS"
-    updateSveObjekteNaKlijentu = "UPDATEOBJS"
-    inputKlijentaPrefix = "COMM:"
-    potvrdaKlijentaDaJeNapravioSveObjekte = "objsCreated"
-    serverWelcomeMsg = "welcome"
-    clientIsReady = "ready"
+    network_kreirajSveObjekteNaKlijentu = "INITOBJS"
+    network_updateSveObjekteNaKlijentu = "UPDATEOBJS"
+    network_updateWeatherInfo = "WEATHER"
+    network_updateGameScoreAndLives = "SCORE"
+    network_inputKlijentaPrefix = "COMM:"
+    network_potvrdaKlijentaDaJeNapravioSveObjekte = "objsCreated"
+    network_serverWelcomeMsg = "welcome"
+    network_clientIsReady = "ready"
+    network_MessageEnd = "_#_$#"
     
 
 if __name__ == '__main__':

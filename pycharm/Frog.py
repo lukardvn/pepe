@@ -65,9 +65,14 @@ class Frog(Rectangle):
             if self.CollidedWithObstacle():
                 self.Die()
 
-        lokvanj = self.CollidedWithLilypad()
-        if lokvanj != None:
-            lokvanj.usedByPlayer(self,Config.twoPl)
+        lilypad = self.CollidedWithLilypad()
+        if lilypad != None:
+            lilypad.usedByPlayer(self,Config.twoPl)
+
+    def IsAlive(self):
+        if self.lives > 0:
+            return True
+        return False
 
     def CollidedWithLilypad(self):
         return self.CollisionLayerSpecific(Config.layerLilypad, returnObject=True)

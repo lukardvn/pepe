@@ -6,10 +6,12 @@ from Config import Config
 
 
 class Meni(QWidget):
-    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame):
+    def __init__(self, QWidget, funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame, funcCloseWindow):
         super().__init__()
         self.allWidgets = []
         self.qWidget = QWidget
+
+        self.funcCloseWindow = funcCloseWindow
 
         self.bgImg = QLabel(QWidget)
         pixmap = QPixmap(Config.spriteLocation + "MainMenu2.png")
@@ -22,7 +24,7 @@ class Meni(QWidget):
         self.sneg = self.KreirajGif('sneg.gif') #label za sneg, koji ce se samo preko mape prikazivati i sklanjati
         movie = self.sneg.movie()
         movie.setSpeed(200)
-        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers,highscoresFunkc, funcHostGame, funcJoinGame)
+        self.mainButtons = self.GlavniMeniKojiSePrikazeNaPocetku(funcSinglePlayer, funcTwoPlayers, highscoresFunkc, funcHostGame, funcJoinGame)
 
         self.optionsElements = self.OptionsSubMenuInit(self.OptionsSubMenuHide)
         self.hsElements = []
@@ -47,14 +49,13 @@ class Meni(QWidget):
             self.sneg.show()
             self.sneg.raise_()
 
-    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick,highscoresFunkc, hostOnClick, joinOnClick):
+    def GlavniMeniKojiSePrikazeNaPocetku(self, singlePlayerOnClick, twoPlayerOnClick, highscoresFunkc, hostOnClick, joinOnClick):
         listaWidgeta = []
         listaWidgeta.append(self.AddButton("1PlayerWidget", "widgets1Player", 5, 170, 400, 70, singlePlayerOnClick))
         listaWidgeta.append(self.AddButton("2PlayerWidget", "widgets2Player", 5, 250, 400, 70, twoPlayerOnClick))
-        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 415, 330, 400, 70, highscoresFunkc)) #ovo treba podesiti gde ide
         listaWidgeta.append(self.AddButton("JoinGameWidget", "widgetsJoin", 5, 330, 400, 70, joinOnClick))
         listaWidgeta.append(self.AddButton("HostGameWidget", "widgetsHost", 5, 410, 400, 70, hostOnClick))
-        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 490, 400, 70))
+        listaWidgeta.append(self.AddButton("highscoresWidget", "widgetsHighscores", 5, 490, 400, 70, highscoresFunkc))
         listaWidgeta.append(self.AddButton("optionsWidget", "widgetsOptions", 5, 570, 400, 70, self.OptionsSubMenuShow))
         listaWidgeta.append(self.AddButton("exitWidget", "widgetsExit", 5, 650, 400, 70, self.exitClicked))
         return listaWidgeta
@@ -75,23 +76,29 @@ class Meni(QWidget):
         optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
 
+    # def HsElementsInit(self, nizTop3):
+    #     widgets = []
+    #     y = 200
+    #     for item in nizTop3:
+    #         widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+    #         y += 100
+    #     widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
+    #     return widgets
+
+    #isto radi kao ova funkcija iznad samo koristi YIELD, da naucite sta je yield (moze da se primeni na svaku funkciju koja vraca neki niz)
     def HsElementsInit(self, nizTop3):
-        widgets = []
         y = 200
         for item in nizTop3:
-            widgets.append(self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]), hide=True))
+            yield self.AddLabel("p1Score", 100, y, str(item[0]) + " :\t" + str(item[1]))
             y += 100
-        widgets.append(self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide, hide=True))
-        return widgets
+        yield self.AddButton("okWidgt", "widgetsOk", 100, 500, 400, 70, self.HsElementsHide)
 
     def HsElementsShow(self, nizTop3):
         for widget in self.allWidgets:
             widget.hide()
 
-        self.hsElements = self.HsElementsInit(nizTop3)
-
-        for item in self.hsElements:
-            item.show()
+        for elem in self.HsElementsInit(nizTop3): #evo primena funkcije koja koristi yield. TZV. funkcije generatori
+            self.hsElements.append(elem)
 
     def HsElementsHide(self):
         for item in self.hsElements:
@@ -186,6 +193,7 @@ class Meni(QWidget):
         self.bgImg.show()
 
     def exitClicked(self):
+        self.funcCloseWindow()
         sys.exit(0)
 
 if __name__ == '__main__':

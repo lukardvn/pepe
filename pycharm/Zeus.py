@@ -4,6 +4,8 @@ import multiprocessing as mp
 from multiprocessing import Queue
 
 class Zeus:
+    oneInstance = None
+
     def __init__(self, kju, secondsSunnyMin, secondsSunnyMax, secondsRainMin, secondsRainMax):
         self.minSunny = secondsSunnyMin
         self.maxSunny = secondsSunnyMax
@@ -12,6 +14,7 @@ class Zeus:
         self.kju = kju
         self.radi = True
         self.vreme = "s"    #kakvo je trenutno vreme; n=>NISTA (nema ni snega ni kise), s=>sneg, k=>kisa
+        Zeus.oneInstance = self
 
     def stop(self):
         self.radi = False
@@ -37,6 +40,7 @@ def _zevseOvoRadi(kju):
 def PokreniZevsa(kju):
     proc = mp.Process(target=_zevseOvoRadi, args=(kju,))
     proc.start()
+    return proc
 
 def Main():
     q = Queue()

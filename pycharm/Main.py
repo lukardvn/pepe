@@ -15,6 +15,7 @@ from Highscore import HighScore
 import time, random
 from multiprocessing import Queue
 import Zeus
+from NetworkCommunication import Client, Host
 
 
 class Frogger(QWidget):
@@ -22,8 +23,11 @@ class Frogger(QWidget):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
         self.Map = [] #lista lejnova
+        self.previousWeather = 'n'
         self.player1 = None
         self.player2 = None
+        self.player1RectId = -1 #ovo je potrebno za mrezu
+        self.player2RectId = -1 #ovo je potrebno za mrezu
         self.Menu = None #glavni meni
 
         self.isHost = False
@@ -49,7 +53,7 @@ class Frogger(QWidget):
         self.key_notifier.start()
 
         self.queue = Queue()
-        Zeus.PokreniZevsa(self.queue)
+        self.procUKomZiviZevs = Zeus.PokreniZevsa(self.queue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
 
 
     def __init_ui__(self):
@@ -59,7 +63,6 @@ class Frogger(QWidget):
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
         self.show()
-        #self.startThreadForUpdatingObjects()
 
     def HsFunkc(self):
         self.Menu.HsElementsShow(self.highscore.top3)
@@ -73,7 +76,7 @@ class Frogger(QWidget):
 
     def DisplayMainMenu(self):
         self.Menu = None
-        self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunc, self.MainMenuHostClick,self.MainMenuJoinClick)
+        self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc, self.MainMenuHostClick,self.MainMenuJoinClick, self.CloseWindow)
 
     def PauseGame(self):
         self.gamePaused = True
@@ -94,8 +97,9 @@ class Frogger(QWidget):
     def SinglePlayerMode(self):
         self.ClearZeusQueue()
         self.Menu.HideMainMenu()
-        self.updaterGameObjekataThread.start()
-        self.DisplayMap()
+        self.DisplayMap() #u displayMap se kreira objekat self.updaterGameObjekataThread i zato DisplayMap mora ici prvi
+        self.createThreadToUpdateGameObjects()
+        self.startThreadForUpdatingGameObjects()
         self.scoreboard.ShowScore()
         self.CreatePlayers()
 
@@ -103,11 +107,12 @@ class Frogger(QWidget):
         while not self.queue.empty():
             self.queue.get()
 
-    def TwoPlayerMode(self):
+    def TwoPlayerMode(self, OverNetworkGame = False):
         self.ClearZeusQueue()
         self.Menu.HideMainMenu()
-        self.updaterGameObjekataThread.start()
-        self.DisplayMap()
+        if not OverNetworkGame: #kad je preko mreze onda updateovanje krece kad klijent bude spreman
+            self.createThreadToUpdateGameObjects()
+            self.startThreadForUpdatingGameObjects()
         self.DisplayMap(TwoPlayers=True)
         self.scoreboard.ShowScores()
         self.CreatePlayers(TwoPlayers=True)
@@ -119,10 +124,31 @@ class Frogger(QWidget):
         self.JoinServer(Config.serverAddress, Config.serverPort)
 
     def CreatePlayers(self, TwoPlayers=False):
-        self.player1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck, self.scoreboard.updateP1Score, self.scoreboard.CreateGreenLives)
+        self.player1 = Frog(Config.player1StartPosition[0], Config.player1StartPosition[1], self.GameOverCheck, self.updateP1Score, self.createGreenLives)
+        self.player1RectId = self.player1.id
         if TwoPlayers:
-            self.player2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, self.scoreboard.updateP2Score, self.scoreboard.CreatePinkLives, isPlayerTwo=True)
-            #Config.twoPl = TwoPlayers
+            self.player2 = Frog(Config.player2StartPosition[0], Config.player2StartPosition[1], self.GameOverCheck, self.updateP2Score, self.createPinkLives, isPlayerTwo=True)
+            self.player2RectId = self.player2.id
+
+    def updateP1Score(self, newScore):
+        self.scoreboard.updateP1Score(newScore)
+        if self.isHost:
+            self.host.SendToClient(Config.network_updateGameScoreAndLives + ":" + "P1S_" + str(newScore)) #P2L => Player 2 Lives
+
+    def updateP2Score(self, newScore):
+        self.scoreboard.updateP2Score(newScore)
+        if self.isHost:
+            self.host.SendToClient(Config.network_updateGameScoreAndLives + ":" + "P2S_" + str(newScore)) #P2L => Player 2 Lives
+
+    def createPinkLives(self, lives):
+        self.scoreboard.CreatePinkLives(lives)
+        if self.isHost:
+            self.host.SendToClient(Config.network_updateGameScoreAndLives + ":" + "P2L_" + str(lives)) #P2L => Player 2 Lives
+
+    def createGreenLives(self, lives):
+        self.scoreboard.CreateGreenLives(lives)
+        if self.isHost:
+            self.host.SendToClient(Config.network_updateGameScoreAndLives + ":" + "P1L_" + str(lives))#P1L => Player 2 Lives
 
     def DisplayMap(self, TwoPlayers=False):
         self.Map.append(Lane.GenerateSafetyLane())  #prvi je uvek sejf lejn
@@ -137,8 +163,6 @@ class Frogger(QWidget):
         else:
             self.Map.append(Lane.GenerateFinalLane(self.LevelPassed, lilyPadPattern=Config.lilypadPatternBO5Standard))  # zadnji je uvek finalLane
 
-        self.startThreadForUpdatingObjects()
-
     def GameOverCheck(self, isPlayerTwo):
         #fja koja se poziva kada igrac ima 0 zivota, prosledjuje se igracima kroz konstruktor
         self.GameOverBrojac += 1
@@ -146,12 +170,12 @@ class Frogger(QWidget):
             if self.GameOverBrojac == 1:
                 if isPlayerTwo:
                     self.highscore.checkIfHighScore(self.player2.playerName, self.player2.score)
-                    self.player2.Hide()
+                    self.player2.RemoveFromScreen()
                     self.player2 = None
                     Config.p2Lives = 0
                 else:
                     self.highscore.checkIfHighScore(self.player1.playerName, self.player1.score)
-                    self.player1.Hide()
+                    self.player1.RemoveFromScreen()
                     self.player1 = None
                     Config.p1Lives = 0
         elif self.player1 != None:
@@ -177,67 +201,74 @@ class Frogger(QWidget):
         self.Menu.kisa.hide()
         self.Menu.sneg.hide()
 
+        # javimo klijentu da bi se vratio na meni
+        if self.isHost:
+            self.host.SendToClient("CONN_ERROR")
+
     def LevelPassed(self):
         #fja koja se poziva kad su svih 5 Lilypada popunjena, prosledjuje se u konstruktoru, prvo finalLejnu pa samim objektima
-        self.stopThreadForUpdatingObjects()
         self.Level += 1
         Lane.ResetLaneStartingIndex()
         self.GameOverBrojac = 0
+        self.DeleteMap()
         if self.player1 != None and self.player2 != None:
             Config.p1Score = self.player1.score
             Config.p2Score = self.player2.score
             Config.p1Lives = self.player1.lives
             Config.p2Lives = self.player2.lives
-            self.DeleteMap()
             self.DisplayMap(TwoPlayers=True)
             self.CreatePlayers(TwoPlayers=True)
         elif self.player1 != None:
             Config.p1Score = self.player1.score
             Config.p1Lives = self.player1.lives
-            self.DeleteMap()
             self.DisplayMap()
             self.CreatePlayers()
         elif self.player2 != None:
             Config.p2Score = self.player2.score
             Config.p2Lives = self.player2.lives
-            self.DeleteMap()
             self.DisplayMap()
             self.CreatePlayers(TwoPlayers=True)
-            self.player1.Hide()
+            self.player1.RemoveFromScreen()
             self.player1 = None
+        #TODO: TREBA DODATI DA JAVI KLIJENTU DA SE UPDATEUJE LEVEL
 
     def DeleteMap(self, deleteP1=False, deleteP2=False):
         if deleteP1:
             try:
-                self.player1.Hide()
+                self.player1.RemoveFromScreen()
                 self.player1 = None
             except:
                 print('P1 vec postavljen na None')
 
         if deleteP2:
             try:
-                self.player2.Hide()
+                self.player2.RemoveFromScreen()
                 self.player2 = None
             except:
                 print('P2 vec postavljen na None')
 
         for lane in self.Map:
             for obs in lane.obstacles:
-                obs.Hide()
+                obs.RemoveFromScreen()
             lane.obstacles.clear()
-            lane.Hide()
+            lane.RemoveFromScreen()
 
-        for rect in Rectangle.allRectangles[Config.layerLilypad]:
-            rect.Hide()
-        Rectangle.allRectangles[Config.layerLilypad].clear()
+        # for rect in Rectangle.allRectangles[Config.layerLilypad]:
+        #     rect.Hide()
+        # Rectangle.allRectangles[Config.layerLilypad].clear()
+        #
+        # for rect in Rectangle.allRectangles[Config.layerZabe]:
+        #     rect.Hide()
+        # Rectangle.allRectangles[Config.layerZabe].clear()
+        #
+        # for rect in Rectangle.allRectangles[Config.layerDefault]:
+        #     rect.Hide()
+        # Rectangle.allRectangles[Config.layerDefault].clear()
 
-        for rect in Rectangle.allRectangles[Config.layerZabe]:
-            rect.Hide()
-        Rectangle.allRectangles[Config.layerZabe].clear()
-
-        for rect in Rectangle.allRectangles[Config.layerDefault]:
-            rect.Hide()
-        Rectangle.allRectangles[Config.layerDefault].clear()
+        for layer, listOfRectanglesInLayer in Rectangle.allRectangles.items():
+            for rect in listOfRectanglesInLayer:
+                rect.RemoveFromScreen()
+            listOfRectanglesInLayer.clear()
 
         self.Map.clear()
 
@@ -258,7 +289,7 @@ class Frogger(QWidget):
             self.key_notifier.add_key(event.key())
 
     def __update_position__(self, key):
-        if not (self.isClient or self.isHost):
+        if not self.isClient:
             if key == Qt.Key_Escape and self.gamePaused:
                 self.ResumeGame()
             elif key == Qt.Key_Escape and not self.gamePaused:
@@ -266,13 +297,13 @@ class Frogger(QWidget):
 
         if self.isClient:   #ako sam klijent onda pored pomeranja zabe, hocu da posaljem INPUT serveru
             if key == Qt.Key_Right:
-                self.client.SendToServer(Config.inputKlijentaPrefix + "DESNO")
+                self.client.SendToServer(Config.network_inputKlijentaPrefix + "DESNO")
             elif key == Qt.Key_Down:
-                self.client.SendToServer(Config.inputKlijentaPrefix + "DOLE")
+                self.client.SendToServer(Config.network_inputKlijentaPrefix + "DOLE")
             elif key == Qt.Key_Up:
-                self.client.SendToServer(Config.inputKlijentaPrefix + "GORE")
+                self.client.SendToServer(Config.network_inputKlijentaPrefix + "GORE")
             elif key == Qt.Key_Left:
-                self.client.SendToServer(Config.inputKlijentaPrefix + "LEVO")
+                self.client.SendToServer(Config.network_inputKlijentaPrefix + "LEVO")
 
         if key == Qt.Key_T:
             for go in GameObject.allGameObjects:
@@ -287,173 +318,70 @@ class Frogger(QWidget):
             self.player2.KeyPress(key)
 
 
-    def closeEvent(self, event):
-        self.updaterGameObjekataThread.updaterThreadWork = False
+    def CloseWindow(self):
+        # OVDE TREBA DA SE POZOVE KOD KOJI CE DA ZAUSTAVI ZEVSA
+        # (ako uopste postoji neko toliko jak da zaustavi zevsa)
+        self.procUKomZiviZevs.terminate()
+
+        try:
+            self.updaterGameObjekataThread.updaterThreadWork = False  # self.updaterGameObjekataThread se kreira samo kad pocne IGRA. Ako budes na meniju i nista ne radis nece se kreirati
+        except:
+            pass
         self.key_notifier.die()
 
-    def startThreadForUpdatingObjects(self):
+    def closeEvent(self, event):
+        CloseWindow()
+
+    def createThreadToUpdateGameObjects(self):
         self.updaterGameObjekataThread = GOUpdater()
         self.updaterGameObjekataThread.nekiObjekat.connect(self.updateAllGameObjects)
-        #self.updaterGameObjekataThread.start() #OVO SE POKRECE KAD KLIJENT BUDE SPREMAN, ili kad pocne neki od lokalnih game modova
-        self.padavina = 'n'
+
+        #OVO (thread koji updateuje objekte) SE POKRECE KAD KLIJENT BUDE SPREMAN (nakon sto preuzme sve objekte i nacrta ih na ekranu), ili kad pocne neki od lokalnih game modova
+        #self.updaterGameObjekataThread.start()
+
+    def startThreadForUpdatingGameObjects(self):
+        self.updaterGameObjekataThread.start()
 
     def stopThreadForUpdatingObjects(self):
         self.updaterGameObjekataThread.updaterThreadWork = False
 
-    def updateAllGameObjects(self, dummy):
+    def updateAllGameObjects(self, dummy): #callback funkcija
         for gameObject in GameObject.allGameObjects:
             gameObject.update()
 
         # ako je instanca server i postoje gameobjekti onda da salje klijentu pozicije tih objekata
         if self.isHost and len(GameObject.allGameObjects) > 0:
-            self.SendUpdateToClient()
+            self.SendRectPositionUpdateToClient()
 
         if not self.queue.empty():
-            vremenskiUslov = self.queue.get()
-            print(vremenskiUslov)
+            self.updateWeather(self.queue.get())
         else:
             return
 
-        if vremenskiUslov == 'k':
-            if self.padavina == 's':
+
+    def updateWeather(self, newWeather):
+        if self.isHost:
+            self.host.SendToClient(Config.network_updateWeatherInfo + ":" + newWeather)
+
+        if newWeather == 'k':
+            if self.previousWeather == 'k':
+                self.ZaustaviKisu()
+            elif self.previousWeather == 's':
                 self.ZaustaviSneg()
             self.PokreniKisu()
-            self.padavina = 'k'
-        elif vremenskiUslov == 's':
-            if self.padavina == 'k':
+        elif newWeather == 's':
+            if self.previousWeather == 'k':
                 self.ZaustaviKisu()
-            self.PokreniSneg()
-            self.padavina = 's'
-        elif vremenskiUslov == 'n':
-            if self.padavina == 'k':
-                self.ZaustaviKisu()
-            elif self.padavina == 's':
+            elif self.previousWeather == 's':
                 self.ZaustaviSneg()
-            self.padavina = 'n'
+            self.PokreniSneg()
+        elif newWeather == 'n':
+            if self.previousWeather == 'k':
+                self.ZaustaviKisu()
+            elif self.previousWeather == 's':
+                self.ZaustaviSneg()
 
-    ################################################################################
-    #FUNKCIJE ISPOD SE KORISTE SAMO ZA MULITPLAYER
-    ################################################################################
-
-    def HostServer(self, address, port):
-        self.isHost = True
-        self.host = Host(address, port)
-        self.host.receiveCallBack.connect(self.ReceiveFromClient)
-        self.host.start()
-
-    def JoinServer(self, address, port):
-        self.isClient = True
-        self.client = Client(address, port)
-        self.client.receiveCallBack.connect(self.ReceiveFromServer)
-        self.client.start()
-
-    # ovo ce biti pozvano kad server primi poruku od klijenta
-    def ReceiveFromClient(self, data):
-        # print("Primio od klijenta: " + str(data))
-        if data == Config.clientIsReady:  # kad primi ovo znaci da se klijent povezao
-            self.TwoPlayerMode()
-            self.player2.keyBoardInputEnabled = False
-            self.host.SendToClient(Config.kreirajSveObjekteNaKlijentu + ":" + self.CreateInitObjectsString())
-        elif data == Config.potvrdaKlijentaDaJeNapravioSveObjekte:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pokrecemo thread koji updateuje igru)
-            self.updaterGameObjekataThread.start()
-        elif Config.inputKlijentaPrefix in data:
-            if Config.inputKlijentaPrefix + "DESNO" == data:
-                self.player2.GoRight()
-            elif Config.inputKlijentaPrefix + "DOLE" == data:
-                self.player2.GoDown()
-            elif Config.inputKlijentaPrefix + "GORE" == data:
-                self.player2.GoUp()
-            elif Config.inputKlijentaPrefix + "LEVO" == data:
-                self.player2.GoLeft()
-
-    # ovo ce biti pozvano kad klijent primi poruku od servera
-    def ReceiveFromServer(self, data):
-        #print("Primio od servera: " + str(data))
-        if data == Config.serverWelcomeMsg:  # znaci da smo se uspesno povezali sa serverom i inicijalizujemo gejm
-            self.InitNetworkGame()
-        elif Config.kreirajSveObjekteNaKlijentu in data:
-            self.GenerateObjects(data.split(":")[1])
-            self.client.SendToServer(Config.potvrdaKlijentaDaJeNapravioSveObjekte)
-        elif Config.updateSveObjekteNaKlijentu in data:
-            self.UpdateObjectsPosition(data.split(":")[1])
-        elif "CONN_ERROR" == data:
-            self.ResetGameStateOnError()
-
-    #ovo se poziva na klijentu.
-    def InitNetworkGame(self):
-        self.TwoPlayerMode()
-
-        #sklanjamo sve objekte, jer ce nam server poslati sta je on generisao (velicine, pozicije, sprajtove)
-        for go in GameObject.allGameObjects:
-            go.RemoveFromScreen()
-        GameObject.allGameObjects.clear()
-        #klijent javi serveru da je spreman (spreman da primi podatke o svim objektima)
-        self.client.SendToServer(Config.clientIsReady)
-
-    def ResetGameStateOnError(self):
-        self.isClient = False
-        self.isHost = False
-        if self.host != None:
-            self.host.radi = False
-            self.host = None
-        if self.client != None:
-            self.client.radi = False
-            self.client = None
-        self.RemoveAllGameUIObjects()
-        self.DisplayMainMenu()
-
-    #poziva se samo na serveru
-    def SendUpdateToClient(self):
-        self.host.SendToClient(Config.updateSveObjekteNaKlijentu + ":" + self.CreateUpdateObjectsString())
-
-    #ova metoda moze ici u GameObject Klasu
-    def CreateInitObjectsString(self):
-        objektiUString = []
-        for go in GameObject.allGameObjects: #saljemo podatke koji su potrebni da bi se napravili objekti na klijentu
-            objektiUString.append(str(go.id) + "%" + go.loadedSprite + "%" + str(go.x) + "%" + str(go.y) + "%" + str(go.w) + "%" + str(go.h))
-        return "#".join(objektiUString)
-
-    # ova metoda moze ici u GameObject Klasu
-    def CreateUpdateObjectsString(self):
-        objektiUString = []
-        for go in GameObject.allGameObjects: #saljemo podatke koji su potrebni da bi se updateovale pozicije objekata na klijentu
-
-            #optimizovano, ne saljem update za sve gameObjecte vec samo one koji su u lejeru prepreke i imaju neku brzinu
-            if go.layer == Config.layerPrepreke and go.speed != 0:
-                objektiUString.append(str(go.id) + "%" + str(go.x) + "%" + str(go.y))
-            elif go.layer == Config.layerZabe or go.layer == Config.layerLilypad: #igraci i lokvanji mogu da promene sprite i zato saljem i sprite :D
-                objektiUString.append(str(go.id) + "%" + str(go.x) + "%" + str(go.y) + "%" + str(go.loadedSprite))
-
-        return "#".join(objektiUString)
-
-    #ova funkcija se poziva na klijentu, da napravi objekte iste kao sto su na serveru. Pozove se samo na pocetku
-    def GenerateObjects(self, data):
-        objs = data.split("#")
-        Rectangle.ResetId()
-        for obj in objs:
-            objData = obj.split("%")
-            r = Rectangle(int(objData[2]), int(objData[3]), int(objData[4]), int(objData[5]), objData[1], layer=objData[0])
-            r.Show()
-
-    #ova funkcija se poziva na klijentu, sluzi za updateovanje (samo X i Y kordinate) svih rectanglova na klijentu.
-    #server ce ovo slati klijentu svaki frejm (30 puta u sekundi)
-    def UpdateObjectsPosition(self, data):
-        objs = data.split("#")
-        dictObj = {}
-        for obj in objs:
-            objData = obj.split("%")
-
-            if len(objData) == 4:
-                dictObj[objData[0]] = (float(objData[1]), float(objData[2]), objData[3])
-            elif len(objData) == 3:
-                dictObj[objData[0]] = (float(objData[1]), float(objData[2]))
-
-        for go in GameObject.allGameObjects:
-            strId = str(go.id)
-            if strId in dictObj.keys():
-                go.SetPosition(dictObj[strId][0], dictObj[strId][1])
-                if len(dictObj[strId]) == 3: #ako je 3 znaci da imamo i sprite poslat
-                    go.ChangeSprite(dictObj[strId][2])
+        self.previousWeather = newWeather
 
     def createLanes(self, niz, type):
         #funkcija koja generise lejnove u zavisnosti od prosledjenog niza i karaktera u njemu
@@ -606,6 +534,165 @@ class Frogger(QWidget):
                  lane.ChangeSpeed(Config.speedChange)   #obrnuto, ako smo bili smanjili brzinu drveca kad je poceo sneg, sad je povecavamo, vracamo na default
             elif lane.laneType == Config.laneTypeTraffic or lane.laneType == Config.laneTypeTrafficTop or lane.laneType == Config.laneTypeTrafficBottom:
                 lane.ChangeSpeed(-Config.speedChange)   #obrnuto, ako smo bili povecali brzinu automobila kad je poceo sneg, sad je smanjujemo, vracamo na default
+
+    ################################################################################
+    #FUNKCIJE ISPOD SE KORISTE SAMO ZA MULITPLAYER
+    ################################################################################
+
+
+    def HostServer(self, address, port):
+        self.isHost = True
+        self.host = Host(address, port)
+        self.host.receiveCallBack.connect(self.ReceiveFromClient)
+        self.host.start()
+
+    def JoinServer(self, address, port):
+        self.isClient = True
+        self.client = Client(address, port)
+        self.client.receiveCallBack.connect(self.ReceiveFromServer)
+        self.client.start()
+
+    # ovo ce biti pozvano kad server primi poruku od klijenta
+    def ReceiveFromClient(self, data):
+        # print("Primio od klijenta: " + str(data))
+        if data == Config.network_clientIsReady:  # kad primi ovo znaci da se klijent povezao
+            self.TwoPlayerMode(OverNetworkGame=True)
+            self.player2.keyBoardInputEnabled = False
+            self.host.SendToClient(Config.network_kreirajSveObjekteNaKlijentu + ":" + self.CreateInitObjectsString())
+        elif data == Config.network_potvrdaKlijentaDaJeNapravioSveObjekte:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pravimo i pokrecemo thread koji updateuje igru)
+            self.createThreadToUpdateGameObjects()
+            self.startThreadForUpdatingGameObjects()
+        elif Config.network_inputKlijentaPrefix in data and self.player2 != None: #ovo da li je igrac razlicit od None je ustvari provera da li je ziv
+            if Config.network_inputKlijentaPrefix + "DESNO" == data:
+                self.player2.GoRight()
+            elif Config.network_inputKlijentaPrefix + "DOLE" == data:
+                self.player2.GoDown()
+            elif Config.network_inputKlijentaPrefix + "GORE" == data:
+                self.player2.GoUp()
+            elif Config.network_inputKlijentaPrefix + "LEVO" == data:
+                self.player2.GoLeft()
+        elif "CONN_ERROR" == data:
+            print("Klijent se spuco :(")
+
+
+    # ovo ce biti pozvano kad klijent primi poruku od servera
+    def ReceiveFromServer(self, data):
+        #print("Primio od servera: " + str(data))
+        if data == Config.network_serverWelcomeMsg:  # znaci da smo se uspesno povezali sa serverom i inicijalizujemo gejm
+            self.InitNetworkGame()
+        elif Config.network_kreirajSveObjekteNaKlijentu in data:
+            self.GenerateObjects(data.split(":")[1])
+            self.client.SendToServer(Config.network_potvrdaKlijentaDaJeNapravioSveObjekte)
+        elif Config.network_updateSveObjekteNaKlijentu in data:
+            self.UpdateObjectsPosition(data.split(":")[1])
+        elif Config.network_updateGameScoreAndLives in data:
+            #ako ovde udje PAYLOAD moze da izgleda ovako:
+            #P2L_3
+            #P1S_2
+            #P2S_4
+            #P1L_1
+            payload = data.split(":")[1]
+            player, scoreOrLives = payload.split('_')
+            #print(str(payload))
+            if "P1" in player:
+                if "S" in player:
+                    self.updateP1Score(scoreOrLives)
+                elif "L" in player:
+                    self.createGreenLives(int(scoreOrLives))
+            elif "P2" in player:
+                if "S" in player:
+                    self.updateP2Score(scoreOrLives)
+                elif "L" in player:
+                    self.createPinkLives(int(scoreOrLives))
+
+        elif Config.network_updateWeatherInfo in data:
+            self.updateWeather(data.split(":")[1])
+        elif "CONN_ERROR" == data:
+            self.ResetGameStateOnError()
+
+    #ovo se poziva na klijentu.
+    def InitNetworkGame(self):
+        self.TwoPlayerMode(OverNetworkGame=True) #nije potrebno ovo True, al da se dzabe nebi pravio thread koji se ne koristi :D
+
+        #sklanjamo sve objekte, jer ce nam server poslati sta je on generisao (velicine, pozicije, sprajtove)
+        for go in GameObject.allGameObjects:
+            go.RemoveFromScreen()
+        GameObject.allGameObjects.clear()
+        #klijent javi serveru da je spreman (spreman da primi podatke o svim objektima)
+        self.client.SendToServer(Config.network_clientIsReady)
+
+    def ResetGameStateOnError(self):
+        self.isClient = False
+        self.isHost = False
+        if self.host != None:
+            self.host.radi = False
+            self.host = None
+        if self.client != None:
+            self.client.radi = False
+            self.client = None
+        self.RemoveAllGameUIObjects()
+        self.DisplayMainMenu()
+
+    #poziva se samo na serveru
+    def SendRectPositionUpdateToClient(self):
+        self.host.SendToClient(Config.network_updateSveObjekteNaKlijentu + ":" + self.CreateUpdateObjectsString())
+
+    #ova metoda moze ici u GameObject Klasu
+    def CreateInitObjectsString(self):
+        objektiUString = []
+        for go in GameObject.allGameObjects: #saljemo podatke koji su potrebni da bi se napravili objekti na klijentu
+            objektiUString.append(str(go.id) + "%" + go.loadedSprite + "%" + str(go.x) + "%" + str(go.y) + "%" + str(go.w) + "%" + str(go.h))
+        return "#".join(objektiUString)
+
+    # ova metoda moze ici u GameObject Klasu
+    def CreateUpdateObjectsString(self):
+        objektiUString = []
+        for go in GameObject.allGameObjects: #saljemo podatke koji su potrebni da bi se updateovale pozicije objekata na klijentu
+
+            #optimizovano, ne saljem update za sve gameObjecte vec samo one koji su u lejeru prepreke i imaju neku brzinu
+            if go.layer == Config.layerPrepreke and go.speed != 0:
+                objektiUString.append(str(go.id) + "%" + str(go.x) + "%" + str(go.y))
+            elif go.layer == Config.layerZabe or go.layer == Config.layerLilypad: #igraci i lokvanji mogu da promene sprite i zato saljem i sprite :D
+                objektiUString.append(str(go.id) + "%" + str(go.x) + "%" + str(go.y) + "%" + str(go.loadedSprite))
+
+        # ovo je dodato ako neki od igraca umre da ga klijent skloni sa ekrana (sprite se stavi na prazan string)
+        if self.player1 == None and self.player1RectId != -1:
+            objektiUString.append(str(self.player1RectId) + "%" + str(0) + "%" + str(0) + "%DEAD")
+            self.player1RectId = -1
+        if self.player2 == None and self.player2RectId != -1:
+            objektiUString.append(str(self.player2RectId) + "%" + str(0) + "%" + str(0) + "%DEAD")
+            self.player2RectId = -1
+
+        return "#".join(objektiUString)
+
+    #ova funkcija se poziva na klijentu, da napravi objekte iste kao sto su na serveru. Pozove se samo na pocetku
+    def GenerateObjects(self, data):
+        objs = data.split("#")
+        Rectangle.ResetId()
+        for obj in objs:
+            objData = obj.split("%")
+            r = Rectangle(int(objData[2]), int(objData[3]), int(objData[4]), int(objData[5]), objData[1], layer=objData[0])
+            r.Show()
+
+    #ova funkcija se poziva na klijentu, sluzi za updateovanje (samo X i Y kordinate) svih rectanglova na klijentu.
+    #server ce ovo slati klijentu svaki frejm (30 puta u sekundi)
+    def UpdateObjectsPosition(self, data):
+        objs = data.split("#")
+        dictObj = {}
+        for obj in objs:
+            objData = obj.split("%")
+
+            if len(objData) == 4:
+                dictObj[objData[0]] = (float(objData[1]), float(objData[2]), objData[3])
+            elif len(objData) == 3:
+                dictObj[objData[0]] = (float(objData[1]), float(objData[2]))
+
+        for go in GameObject.allGameObjects:
+            strId = str(go.id)
+            if strId in dictObj.keys():
+                go.SetPosition(dictObj[strId][0], dictObj[strId][1])
+                if len(dictObj[strId]) == 3: #ako je 3 znaci da imamo i sprite poslat
+                    go.ChangeSprite(dictObj[strId][2])
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
