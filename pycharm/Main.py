@@ -32,9 +32,9 @@ class Frogger(QWidget):
         self.highscore.readFromFile()
 
         ###############################################
-        self.videoWidget = QVideoWidget(self)
-        self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
-        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        #self.videoWidget = QVideoWidget(self)
+        #self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
+        #self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         ###############################################
 
         self.setWindowState(Qt.WindowNoState)
@@ -46,13 +46,6 @@ class Frogger(QWidget):
 
         self.queue = Queue()
         self.procUKomZiviZevs = Zeus.PokreniZevsa(self.queue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
-
-    def initVideo(self):
-        self.mediaPlayer.setVideoOutput(self.videoWidget)
-        self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.wmv")))
-        self.mediaPlayer.setVideoOutput(self.videoWidget)
-        self.videoWidget.show()
-        self.mediaPlayer.play()
 
     def InitFlagsAndVariables(self):
         self.Map = []  # lista lejnova
@@ -78,15 +71,22 @@ class Frogger(QWidget):
         Config.p1Lives = 5
         Config.p2Lives = 5
 
+    # def initVideo(self):
+    #     self.mediaPlayer.setVideoOutput(self.videoWidget)
+    #     self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.wmv")))
+    #     self.mediaPlayer.setVideoOutput(self.videoWidget)
+    #     self.videoWidget.show()
+    #     self.mediaPlayer.play()
+
     def __init_ui__(self):
-        #self.DisplayMainMenu()
+        self.DisplayMainMenu()
         self.setWindowTitle('Frogger')
         self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
-        self.initVideo()
-        q = QTimer()
-        q.singleShot(6000, self.DisplayMainMenu)
+        #self.initVideo()
+        #q = QTimer()
+        #q.singleShot(6000, self.DisplayMainMenu)
         self.show()
 
     def HsFunkc(self):
@@ -100,8 +100,11 @@ class Frogger(QWidget):
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def DisplayMainMenu(self):
-        self.mediaPlayer.stop()
-        self.videoWidget.hide()
+        #self.mediaPlayer.stop()
+        #self.mediaPlayer.setVideoOutput(None)
+        #self.videoWidget.setGeometry(0, 0, 0, 0)
+        #self.videoWidget.hide()
+        #self.videoWidget = None
         self.Menu = None
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc, self.MainMenuHostClick,self.MainMenuJoinClick, self.CloseWindow)
 
