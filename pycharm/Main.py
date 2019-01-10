@@ -16,7 +16,9 @@ import time, random
 from multiprocessing import Queue
 import Zeus
 from NetworkCommunication import Client, Host
-
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtCore import QDir, Qt, QUrl
 
 class Frogger(QWidget):
     def __init__(self):
@@ -45,6 +47,12 @@ class Frogger(QWidget):
         self.highscore = HighScore()
         self.highscore.readFromFile()
 
+        ###############################################
+        #self.videoWidget = QVideoWidget(self)
+        #self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
+        #self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        ###############################################
+
         self.setWindowState(Qt.WindowNoState)
         self.__init_ui__()
 
@@ -55,6 +63,12 @@ class Frogger(QWidget):
         self.queue = Queue()
         self.procUKomZiviZevs = Zeus.PokreniZevsa(self.queue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
 
+    #def initVideo(self):
+        #self.mediaPlayer.setVideoOutput(self.videoWidget)
+        #self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.mp4")))
+        #self.mediaPlayer.setVideoOutput(self.videoWidget)
+        #self.videoWidget.show()
+        #self.mediaPlayer.play()
 
     def __init_ui__(self):
         self.DisplayMainMenu()
@@ -62,6 +76,9 @@ class Frogger(QWidget):
         self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
+        #self.initVideo()
+        #q = QTimer()
+        #q.singleShot(9000, self.DisplayMainMenu)
         self.show()
 
     def HsFunkc(self):
@@ -75,6 +92,8 @@ class Frogger(QWidget):
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def DisplayMainMenu(self):
+        #self.mediaPlayer.stop()
+        #self.videoWidget.hide()
         self.Menu = None
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc, self.MainMenuHostClick,self.MainMenuJoinClick, self.CloseWindow)
 
