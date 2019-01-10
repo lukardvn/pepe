@@ -224,6 +224,7 @@ $RECYCLE.BIN/
 *.msp
 *.xml
 *.iml
+*.tekstFajl
 
 # Windows shortcuts
 *.lnk
