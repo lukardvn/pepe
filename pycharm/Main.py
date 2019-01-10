@@ -25,6 +25,7 @@ class Frogger(QWidget):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
         self.Menu = None  # glavni meni
+
         self.InitFlagsAndVariables();
 
         self.scoreboard = Scoreboard(self)
@@ -44,8 +45,8 @@ class Frogger(QWidget):
         self.key_notifier.key_signal.connect(self.__update_position__)
         self.key_notifier.start()
 
-        self.queue = Queue()
-        self.procUKomZiviZevs = Zeus.PokreniZevsa(self.queue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
+        self.ZevsJavljaVremeQueue = Queue()
+        self.procUKomZiviZevs = Zeus.PokreniZevsa(self.ZevsJavljaVremeQueue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
 
     def InitFlagsAndVariables(self):
         self.Map = []  # lista lejnova
@@ -54,11 +55,6 @@ class Frogger(QWidget):
         self.player2 = None
         self.player1RectId = -1  # ovo je potrebno za mrezu
         self.player2RectId = -1  # ovo je potrebno za mrezu
-
-        self.isHost = False
-        self.isClient = False
-        self.host = None
-        self.client = None
 
         self.gamePaused = False
 
@@ -70,6 +66,22 @@ class Frogger(QWidget):
         Config.p2Score = 0
         Config.p1Lives = 5
         Config.p2Lives = 5
+
+        try:
+            self.ShutDownHost()
+        except:
+            pass
+
+        try:
+            self.ShutDownClient()
+        except:
+            pass
+
+        self.host = None
+        self.client = None
+        self.isHost = False
+        self.isClient = False
+
 
     # def initVideo(self):
     #     self.mediaPlayer.setVideoOutput(self.videoWidget)
@@ -135,8 +147,8 @@ class Frogger(QWidget):
         Config.collectLilypadsToAdvanceLevel = 1
 
     def ClearZeusQueue(self):
-        while not self.queue.empty():
-            self.queue.get()
+        while not self.ZevsJavljaVremeQueue.empty():
+            self.ZevsJavljaVremeQueue.get()
 
     def TwoPlayerMode(self, OverNetworkGame = False):
         self.ClearZeusQueue()
@@ -228,6 +240,10 @@ class Frogger(QWidget):
             self.GameOver()
 
     def GameOver(self):
+        # javimo klijentu da bi se vratio na meni
+        if self.isHost:
+            self.host.SendToClient(Config.network_ConnectionError)
+
         #fja koja se poziva kad su svi igraci igraci ostali bez zivota
         self.stopThreadForUpdatingObjects()
         self.DeleteMap(deleteP1=True, deleteP2=True)
@@ -236,12 +252,23 @@ class Frogger(QWidget):
         self.scoreboard.HideScores()
         self.Menu.kisa.hide()
         self.Menu.sneg.hide()
+        self.scoreboard.CreateGreenLives(0)
+        self.scoreboard.CreatePinkLives(0)
 
         self.InitFlagsAndVariables()
 
-        # javimo klijentu da bi se vratio na meni
-        if self.isHost:
-            self.host.SendToClient("CONN_ERROR")
+    def ShutDownHost(self):
+        if self.host != None:
+            print("gasim hosta")
+            self.host.StopHosting()
+            self.isHost = False
+            self.host = None
+
+    def ShutDownClient(self):
+        if self.client != None:
+            self.client.StopClienting()
+            self.isClient = False
+            self.client = None
 
     def LevelPassed(self):
         #fja koja se poziva kad su svih 5 Lilypada popunjena, prosledjuje se u konstruktoru, prvo finalLejnu pa samim objektima
@@ -268,7 +295,6 @@ class Frogger(QWidget):
             self.CreatePlayers(TwoPlayers=True)
             self.player1.RemoveFromScreen()
             self.player1 = None
-        #TODO: TREBA DODATI DA JAVI KLIJENTU DA SE UPDATEUJE LEVEL
 
         if self.isHost and self.player2 != None:
             self.SendClientToReplicateObjects()
@@ -350,7 +376,10 @@ class Frogger(QWidget):
     def CloseWindow(self):
         # OVDE TREBA DA SE POZOVE KOD KOJI CE DA ZAUSTAVI ZEVSA
         # (ako uopste postoji neko toliko jak da zaustavi zevsa)
-        self.procUKomZiviZevs.terminate()
+        try:
+            self.procUKomZiviZevs.terminate()
+        except:
+            pass
 
         try:
             self.updaterGameObjekataThread.updaterThreadWork = False  # self.updaterGameObjekataThread se kreira samo kad pocne IGRA. Ako budes na meniju i nista ne radis nece se kreirati
@@ -385,8 +414,8 @@ class Frogger(QWidget):
         if self.isHost and len(GameObject.allGameObjects) > 0:
             self.SendRectPositionUpdateToClient()
 
-        if not self.queue.empty():
-            self.updateWeather(self.queue.get())
+        if not self.ZevsJavljaVremeQueue.empty():
+            self.updateWeather(self.ZevsJavljaVremeQueue.get())
         else:
             return
 
@@ -606,7 +635,7 @@ class Frogger(QWidget):
                 self.player2.GoUp()
             elif Config.network_inputKlijentaPrefix + "LEVO" == data:
                 self.player2.GoLeft()
-        elif "CONN_ERROR" == data:
+        elif Config.network_ConnectionError == data:
             print("Klijent je otiso :(")
             self.ResetGameStateOnError()
 
@@ -642,7 +671,7 @@ class Frogger(QWidget):
 
         elif Config.network_updateWeatherInfo in data:
             self.updateWeather(data.split(":")[1])
-        elif "CONN_ERROR" == data:
+        elif Config.network_ConnectionError == data:
             self.ResetGameStateOnError()
 
     #ovo se poziva na klijentu.
@@ -656,15 +685,8 @@ class Frogger(QWidget):
         #klijent javi serveru da je spreman (spreman da primi podatke o svim objektima)
         self.client.SendToServer(Config.network_clientIsReady)
 
+    #poziva se ako dodje do greske prilikom komunikacije sa klijentom
     def ResetGameStateOnError(self):
-        self.isClient = False
-        self.isHost = False
-        if self.host != None:
-            self.host.radi = False
-            self.host = None
-        if self.client != None:
-            self.client.radi = False
-            self.client = None
         self.RemoveAllGameUIObjects()
         self.GameOver()
 

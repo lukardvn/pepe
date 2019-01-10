@@ -163,6 +163,7 @@ class Config:
     network_serverWelcomeMsg = "welcome"
     network_clientIsReady = "ready"
     network_MessageEnd = "_#_$#"
+    network_ConnectionError = "CONNECTION_ERROR"
     
 
 if __name__ == '__main__':
