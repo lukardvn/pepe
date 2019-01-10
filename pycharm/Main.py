@@ -100,8 +100,8 @@ class Frogger(QWidget):
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
     def DisplayMainMenu(self):
-        #self.mediaPlayer.stop()
-        #self.videoWidget.hide()
+        self.mediaPlayer.stop()
+        self.videoWidget.hide()
         self.Menu = None
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc, self.MainMenuHostClick,self.MainMenuJoinClick, self.CloseWindow)
 
