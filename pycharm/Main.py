@@ -144,6 +144,14 @@ class Frogger(QWidget):
     def MainMenuJoinClick(self):
         #self.Menu.JoinWidgetHide()
         self.setFocus()
+
+        #ovde sacuvamo ip adresu i port u fajl. da kad se sledeci put upali igra da odma ucita tu ipadresu i port
+        try:
+            with open(Config.lastIp_filename, "w") as f:
+                f.write(str(self.Menu.ipAddr) + ":" + str(self.Menu.port))
+        except:
+            pass
+
         self.JoinServer(self.Menu.ipAddr, int(self.Menu.port))
 
     def CreatePlayers(self, TwoPlayers=False):
@@ -278,18 +286,6 @@ class Frogger(QWidget):
                 obs.RemoveFromScreen()
             lane.obstacles.clear()
             lane.RemoveFromScreen()
-
-        # for rect in Rectangle.allRectangles[Config.layerLilypad]:
-        #     rect.Hide()
-        # Rectangle.allRectangles[Config.layerLilypad].clear()
-        #
-        # for rect in Rectangle.allRectangles[Config.layerZabe]:
-        #     rect.Hide()
-        # Rectangle.allRectangles[Config.layerZabe].clear()
-        #
-        # for rect in Rectangle.allRectangles[Config.layerDefault]:
-        #     rect.Hide()
-        # Rectangle.allRectangles[Config.layerDefault].clear()
 
         for layer, listOfRectanglesInLayer in Rectangle.allRectangles.items():
             for rect in listOfRectanglesInLayer:

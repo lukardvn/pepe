@@ -38,6 +38,9 @@ class Host(QtCore.QThread):
                 tRecv.join()
                 tSend.join()
 
+                #da host prekine gejm jer se klijent diskonektovao
+                self.receiveCallBack.emit("CONN_ERROR")
+
     def receive(self, conn):
         while self.radi:
             messageEnd = False
@@ -68,7 +71,11 @@ class Host(QtCore.QThread):
     def send(self, conn):
         while self.radi:
             msg = self.sendQueue.get()
-            conn.sendall(msg)
+            try:
+                conn.sendall(msg)
+            except:
+                self.radi = False
+                break
 
 
 

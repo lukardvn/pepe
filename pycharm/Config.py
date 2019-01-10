@@ -148,8 +148,9 @@ class Config:
         (5, 9.15, 260, laneTypeWater)
     ]
 
-    highscore_filename = "hs.txt"
+    highscore_filename = "hs.tekstFajl"
     playerNames_filename = "names.tekstFajl"
+    lastIp_filename = "lastIp.tekstFajl"
     
 
     #kljucne reci za komunikaciju izmedju servera i klijenta

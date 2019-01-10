@@ -94,10 +94,24 @@ class Meni(QWidget):
 
     def JoinWidgetsInit(self, joinGame=None):
         joinWidgets = []
+
+        serverAddress = ""
+        serverPort = Config.serverPort
+
+        #ucita iz fajla sacuvane ipadrese i port
+        try:
+            with open(Config.lastIp_filename, "r") as f:
+                #nema nikakvih provera
+                tkst = f.readline().split(":")
+                serverAddress = tkst[0]
+                serverPort = tkst[1]
+        except:
+            pass
+
         joinWidgets.append(self.AddLabel("ipAddress", 50, 200, "IP ADDRESS:", hide=True))
         joinWidgets.append(self.AddLabel("port", 50, 300, "PORT:", hide=True))
-        joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, "", hide=True, OnInputChange=self.SetIPAddress))
-        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, Config.serverPort , hide=True, OnInputChange=self.SetPort))
+        joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, serverAddress, hide=True, OnInputChange=self.SetIPAddress))
+        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, serverPort, hide=True, OnInputChange=self.SetPort))
         joinWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, joinGame, hide=True))
         return joinWidgets
 
