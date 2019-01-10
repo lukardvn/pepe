@@ -24,24 +24,8 @@ class Frogger(QWidget):
     def __init__(self):
         super().__init__()
         Config.mainWindow = self #odma se postavi koji objekat je mainWindow da bi tamo u Rectangle.py Qlabeli znali gde treba da se nacrtaju. Lose je resenje, al radi bar za testiranje
-        self.Map = [] #lista lejnova
-        self.previousWeather = 'n'
-        self.player1 = None
-        self.player2 = None
-        self.player1RectId = -1 #ovo je potrebno za mrezu
-        self.player2RectId = -1 #ovo je potrebno za mrezu
-        self.Menu = None #glavni meni
-
-        self.isHost = False
-        self.isClient = False
-        self.host = None
-        self.client = None
-
-        self.gamePaused = False
-
-        self.GameOverBrojac = 0 # za zivote, ako je 2PlayerMode, kad igrac izgubi sve zivote povecava brojac za 1, kad oba izgube sve zivote, brojac je 2 i tad je gameOver
-        # ako je SinglePlayer mod onda je gameOver ako je brojac 1
-        self.Level = 1 # za levele
+        self.Menu = None  # glavni meni
+        self.InitFlagsAndVariables();
 
         self.scoreboard = Scoreboard(self)
         self.highscore = HighScore()
@@ -69,6 +53,30 @@ class Frogger(QWidget):
         #self.mediaPlayer.setVideoOutput(self.videoWidget)
         #self.videoWidget.show()
         #self.mediaPlayer.play()
+
+    def InitFlagsAndVariables(self):
+        self.Map = []  # lista lejnova
+        self.previousWeather = 'n'
+        self.player1 = None
+        self.player2 = None
+        self.player1RectId = -1  # ovo je potrebno za mrezu
+        self.player2RectId = -1  # ovo je potrebno za mrezu
+
+        self.isHost = False
+        self.isClient = False
+        self.host = None
+        self.client = None
+
+        self.gamePaused = False
+
+        self.GameOverBrojac = 0  # za zivote, ako je 2PlayerMode, kad igrac izgubi sve zivote povecava brojac za 1, kad oba izgube sve zivote, brojac je 2 i tad je gameOver
+        # ako je SinglePlayer mod onda je gameOver ako je brojac 1
+        self.Level = 1  # za levele
+
+        Config.p1Score = 0
+        Config.p2Score = 0
+        Config.p1Lives = 5
+        Config.p2Lives = 5
 
     def __init_ui__(self):
         self.DisplayMainMenu()
@@ -222,15 +230,11 @@ class Frogger(QWidget):
         self.DeleteMap(deleteP1=True, deleteP2=True)
         self.Menu.ShowMainMenu()
         Lane.ResetLaneStartingIndex()
-        self.GameOverBrojac = 0
-        self.Level = 1
         self.scoreboard.HideScores()
-        Config.p1Score = 0
-        Config.p2Score = 0
-        Config.p1Lives = 5
-        Config.p2Lives = 5
         self.Menu.kisa.hide()
         self.Menu.sneg.hide()
+
+        self.InitFlagsAndVariables()
 
         # javimo klijentu da bi se vratio na meni
         if self.isHost:
@@ -598,7 +602,8 @@ class Frogger(QWidget):
             elif Config.network_inputKlijentaPrefix + "LEVO" == data:
                 self.player2.GoLeft()
         elif "CONN_ERROR" == data:
-            print("Klijent se spuco :(")
+            print("Klijent je otiso :(")
+            self.ResetGameStateOnError()
 
     # ovo ce biti pozvano kad klijent primi poruku od servera
     def ReceiveFromServer(self, data):
