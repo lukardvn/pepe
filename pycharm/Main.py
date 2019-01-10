@@ -32,9 +32,9 @@ class Frogger(QWidget):
         self.highscore.readFromFile()
 
         ###############################################
-        #self.videoWidget = QVideoWidget(self)
-        #self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
-        #self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.videoWidget = QVideoWidget(self)
+        self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
+        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         ###############################################
 
         self.setWindowState(Qt.WindowNoState)
@@ -47,12 +47,12 @@ class Frogger(QWidget):
         self.queue = Queue()
         self.procUKomZiviZevs = Zeus.PokreniZevsa(self.queue) #pokrece proces koji u kju stavlja kakvo vreme treba da bude (sunce, kisa, sneg)
 
-    #def initVideo(self):
-        #self.mediaPlayer.setVideoOutput(self.videoWidget)
-        #self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.mp4")))
-        #self.mediaPlayer.setVideoOutput(self.videoWidget)
-        #self.videoWidget.show()
-        #self.mediaPlayer.play()
+    def initVideo(self):
+        self.mediaPlayer.setVideoOutput(self.videoWidget)
+        self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.wmv")))
+        self.mediaPlayer.setVideoOutput(self.videoWidget)
+        self.videoWidget.show()
+        self.mediaPlayer.play()
 
     def InitFlagsAndVariables(self):
         self.Map = []  # lista lejnova
@@ -79,14 +79,14 @@ class Frogger(QWidget):
         Config.p2Lives = 5
 
     def __init_ui__(self):
-        self.DisplayMainMenu()
+        #self.DisplayMainMenu()
         self.setWindowTitle('Frogger')
         self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
-        #self.initVideo()
-        #q = QTimer()
-        #q.singleShot(9000, self.DisplayMainMenu)
+        self.initVideo()
+        q = QTimer()
+        q.singleShot(6000, self.DisplayMainMenu)
         self.show()
 
     def HsFunkc(self):
