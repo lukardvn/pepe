@@ -45,6 +45,7 @@ class Host(QtCore.QThread):
         while self.radi:
             messageEnd = False
 
+            #ovaj while se vrti dok se u buferu (recvBufferString) ne pojavi barem jedna cela poruka (moze i vise poruka da bude)
             while not messageEnd:
                 try:
                     data = conn.recv(Config.bufferSize).decode("utf-8")
@@ -58,12 +59,13 @@ class Host(QtCore.QThread):
 
             entireMessagesReceived = self.recvBufferString.split(Config.network_MessageEnd)
 
-
+            #u ifu se iz bufera (recvBufferString) izdvoje cele poruke. A ako ima deo sledece poruke (poslednja poruka nije stigla cela) onda taj deo ide nazad u bufer
             if self.recvBufferString.endswith(Config.network_MessageEnd): #ovde ce uci ako posle kraja za poruku nema vise podataka
                 self.recvBufferString = ""
             else: #ako posle kraja za poruku imaju podaci sledece poruke (ali ne svi) onda ce te podatke sto su ostali da sacuva u bufferu za sledece primanje
                 self.recvBufferString = entireMessagesReceived[-1]
                 entireMessagesReceived = entireMessagesReceived[:-1]
+
 
             for msg in entireMessagesReceived:
                 self.receiveCallBack.emit(msg)
@@ -113,6 +115,7 @@ class Client(QtCore.QThread):
         while self.radi:
             messageEnd = False
 
+            # ovaj while se vrti dok se u buferu (recvBufferString) ne pojavi barem jedna cela poruka (moze i vise poruka da bude)
             while not messageEnd:
                 try:
                     data = conn.recv(Config.bufferSize).decode("utf-8")
@@ -127,6 +130,7 @@ class Client(QtCore.QThread):
 
             entireMessagesReceived = self.recvBufferString.split(Config.network_MessageEnd)
 
+            #u ifu se iz bufera (recvBufferString) izdvoje cele poruke. A ako ima deo sledece poruke (poslednja poruka nije stigla cela) onda taj deo ide nazad u bufer
             if self.recvBufferString.endswith(
                     Config.network_MessageEnd):  # ovde ce uci ako posle kraja za poruku nema vise podataka
                 self.recvBufferString = ""
