@@ -147,7 +147,7 @@ class Frogger(QWidget):
         self.DisplayMap(TwoPlayers=True)
         self.scoreboard.ShowScores()
         self.CreatePlayers(TwoPlayers=True)
-        Config.collectLilypadsToAdvanceLevel = 1
+        Config.collectLilypadsToAdvanceLevel = 3
 
     def MainMenuHostClick(self):
         self.HostServer(Config.serverAddress, Config.serverPort)
@@ -592,7 +592,6 @@ class Frogger(QWidget):
         # print("Primio od klijenta: " + str(data))
         if data == Config.network_clientIsReady:  # kad primi ovo znaci da se klijent povezao
             self.TwoPlayerMode(OverNetworkGame=True)
-            Config.collectLilypadsToAdvanceLevel = 3
             self.player2.keyBoardInputEnabled = False
             self.SendClientToReplicateObjects()                             #da ne generise updater svaki put kad se predje level, vec samo incijalno kad se uspostavi veza
         elif data == Config.network_potvrdaKlijentaDaJeNapravioSveObjekte and self.Level == 1:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pravimo i pokrecemo thread koji updateuje igru)
