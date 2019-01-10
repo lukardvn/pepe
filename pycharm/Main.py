@@ -369,7 +369,10 @@ class Frogger(QWidget):
         self.updaterGameObjekataThread.start()
 
     def stopThreadForUpdatingObjects(self):
-        self.updaterGameObjekataThread.updaterThreadWork = False
+        try: #na klijentu ovaj objekat za updateovanje ce biti null
+            self.updaterGameObjekataThread.updaterThreadWork = False
+        except:
+            pass
 
     def updateAllGameObjects(self, dummy): #callback funkcija
         for gameObject in GameObject.allGameObjects:

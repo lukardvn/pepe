@@ -105,6 +105,8 @@ class Meni(QWidget):
                 tkst = f.readline().split(":")
                 serverAddress = tkst[0]
                 serverPort = tkst[1]
+                self.ipAddr = serverAddress
+                self.port = serverPort
         except:
             pass
 
