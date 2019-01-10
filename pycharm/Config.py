@@ -149,6 +149,7 @@ class Config:
     ]
 
     highscore_filename = "hs.txt"
+    playerNames_filename = "names.tekstFajl"
     
 
     #kljucne reci za komunikaciju izmedju servera i klijenta

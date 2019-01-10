@@ -73,11 +73,22 @@ class Meni(QWidget):
 
 
     def OptionsSubMenuInit(self, exitMenuOnClick=None):
+        #ucita iz fajla
+        p1Name = "Player1"
+        p2Name = "Player2"
+        try:
+            with open(Config.playerNames_filename, "r") as f:
+                #ako se obrne redosled u fajlu pogresno ce ucitati
+                p1Name = f.readline().split(":")[1]
+                p2Name = f.readline().split(":")[1]
+        except:
+            pass
+
         optionsWidgets = []
         optionsWidgets.append(self.AddLabel("player1Name", 50, 200, "PLAYER 1:", hide=True))
         optionsWidgets.append(self.AddLabel("player2Name", 50, 300, "PLAYER 2:", hide=True))
-        optionsWidgets.append(self.AddEditLine("player1NameTxt", 250, 185, 450, 95, "Player1", hide=True))
-        optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, "Player2", hide=True))
+        optionsWidgets.append(self.AddEditLine("player1NameTxt", 250, 185, 450, 95, p1Name, hide=True))
+        optionsWidgets.append(self.AddEditLine("player2NameTxt", 250, 285, 450, 95, p2Name, hide=True))
         optionsWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, exitMenuOnClick, hide=True))
         return optionsWidgets
 
@@ -85,8 +96,8 @@ class Meni(QWidget):
         joinWidgets = []
         joinWidgets.append(self.AddLabel("ipAddress", 50, 200, "IP ADDRESS:", hide=True))
         joinWidgets.append(self.AddLabel("port", 50, 300, "PORT:", hide=True))
-        joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, "", hide=True, OnJoin=self.SetIPAddress))
-        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, Config.serverPort , hide=True, OnJoin=self.SetPort))
+        joinWidgets.append(self.AddEditLine("ipAddressTxt", 250, 185, 450, 95, "", hide=True, OnInputChange=self.SetIPAddress))
+        joinWidgets.append(self.AddEditLine("portTxt", 250, 285, 450, 95, Config.serverPort , hide=True, OnInputChange=self.SetPort))
         joinWidgets.append(self.AddButton("okWidget", "widgetsOk", 50, 420, 400, 70, joinGame, hide=True))
         return joinWidgets
 
@@ -160,6 +171,12 @@ class Meni(QWidget):
         for btn in self.mainButtons:
             btn.show()
 
+        #quick fix, sacuva uneta imena u fajl da moze prilikom sledeceg pokretanja da ucita
+        with open(Config.playerNames_filename, "w") as f:
+            f.write("p1:" + Config.p1Name + "\n")
+            f.write("p2:" + Config.p2Name + "\n")
+
+
     def AddButton(self, objectName, sprite, x, y, width, height, onClick=None, hide=False):
         btn = QPushButton(self.qWidget)
         btn.setObjectName(objectName)
@@ -193,7 +210,7 @@ class Meni(QWidget):
         self.allWidgets.append(lbl)
         return lbl
 
-    def AddEditLine(self, objectName, x, y, width, height, text, hide=False, OnJoin=None):
+    def AddEditLine(self, objectName, x, y, width, height, text, hide=False, OnInputChange=None):
         editLine = QLineEdit(self.qWidget)
         editLine.setObjectName(objectName)
         editLine.move(x, y)
@@ -206,8 +223,8 @@ class Meni(QWidget):
         else:
             editLine.show()
 
-        if OnJoin != None:
-            editLine.textChanged.connect(OnJoin)
+        if OnInputChange != None:
+            editLine.textChanged.connect(OnInputChange)
 
         self.allWidgets.append(editLine)
         return editLine
