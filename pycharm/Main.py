@@ -412,20 +412,20 @@ class Frogger(QWidget):
     def createLanes(self, niz, type):
         #funkcija koja generise lejnove u zavisnosti od prosledjenog niza i karaktera u njemu
         if type == 'Road':
-            for i in range(len(niz)):
-                if niz[i] == 'e':
+            for letter in niz:
+                if letter == 'e':
                     self.Map.append(Lane.GenerateEasyLane())
-                elif niz[i] == 'm':
+                elif letter == 'm':
                     self.Map.append(Lane.GenerateMediumLane())
-                elif niz[i] == 'h':
+                elif letter == 'h':
                     self.Map.append(Lane.GenerateHardLane())
         elif type == 'Water':
-            for i in range(len(niz)):
-                if niz[i] == 'e':
+            for letter in niz:
+                if letter == 'e':
                     self.Map.append(Lane.GenerateEasyWaterLane())
-                elif niz[i] == 'm':
+                elif letter == 'm':
                     self.Map.append(Lane.GenerateMediumWaterLane())
-                elif niz[i] == 'h':
+                elif letter == 'h':
                     self.Map.append(Lane.GenerateHardWaterLane())
         elif type == 'Random':
             for letter in niz:
@@ -588,8 +588,8 @@ class Frogger(QWidget):
             self.TwoPlayerMode(OverNetworkGame=True)
             Config.collectLilypadsToAdvanceLevel = 3
             self.player2.keyBoardInputEnabled = False
-            self.SendClientToReplicateObjects()
-        elif data == Config.network_potvrdaKlijentaDaJeNapravioSveObjekte:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pravimo i pokrecemo thread koji updateuje igru)
+            self.SendClientToReplicateObjects()                             #da ne generise updater svaki put kad se predje level, vec samo incijalno kad se uspostavi veza
+        elif data == Config.network_potvrdaKlijentaDaJeNapravioSveObjekte and self.Level == 1:  # klijent je potvrdio da je napravio sve objekte i sad pokrecemo igru (pravimo i pokrecemo thread koji updateuje igru)
             self.createThreadToUpdateGameObjects()
             self.startThreadForUpdatingGameObjects()
         elif Config.network_inputKlijentaPrefix in data and self.player2 != None: #ovo da li je igrac razlicit od None je ustvari provera da li je ziv
@@ -660,7 +660,7 @@ class Frogger(QWidget):
             self.client.radi = False
             self.client = None
         self.RemoveAllGameUIObjects()
-        self.DisplayMainMenu()
+        self.GameOver()
 
     #poziva se samo na serveru
     def SendRectPositionUpdateToClient(self):

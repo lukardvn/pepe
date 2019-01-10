@@ -15,7 +15,7 @@ class Lane(Rectangle):
         self.spacing = spacing
         self.obstacles = []
 
-        self.offset = random.randint(int(65 * (abs(speed) * 0.3)), int(305  * (abs(speed) * 0.1)))
+        self.offset = random.randint(int(65 * (abs(speed) * 0.3)), int(305 * (abs(speed) * 0.15)))
         if self.offset < 55:
             self.offset = 55
 
