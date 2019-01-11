@@ -1,5 +1,5 @@
 from Rectangle import Rectangle
-from PyQt5.QtCore import Qt, pyqtSignal, QThread
+from PyQt5.QtCore import Qt, pyqtSignal, QThread,QTimer
 
 from Config import Config
 import time
@@ -121,23 +121,31 @@ class Frog(Rectangle):
         super().SetPosition(newXcoord, newYcoord)
 
     def deus(self,xCord,yCord):
+        #kaze luka da je ovo jako prljavo resenje iliti rijesenje
         if xCord == 0 and yCord ==350:
-            if random.randint(1,5) == 3:
-                if self.lives < 6:
-                    if self.isPlayerTwo:
-                        Config.p2Lives = self.lives + 1
-                        self.lives = Config.p2Lives
-                        self.funkcijaZaZivote(self.lives)
-                        #print(self.lives)
-                        #print(Config.p2Lives)
-                    else:
-                        Config.p1Lives = self.lives + 1
-                        self.lives = Config.p1Lives
-                        self.funkcijaZaZivote(self.lives)
-                        #print(self.lives)
-                        #print(Config.p1Lives)
+            QTimer.singleShot(3000,self.hehe)
+
+    def kudaSiPosao(self):
+        self.ReturnToStart()
+
+    def hehe(self):
+        if random.randint(1, 5) == 3:
+            if self.lives < 6:
+                if self.isPlayerTwo:
+                    self.goTo()
                 else:
-                    print("")
+                    self.goTo()
+            else:
+                print("imas zivote ne moze!")
+        else:
+            if self.isPlayerTwo:
+                self.kudaSiPosao()
+            else:
+                self.kudaSiPosao()
+
+    def goTo(self):
+        self.SetPosition(50,0)
+
 
     def GoLeft(self):
         if self.isPlayerTwo:
