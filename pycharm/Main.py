@@ -33,9 +33,11 @@ class Frogger(QWidget):
         self.highscore.readFromFile()
 
         ###############################################
-        #self.videoWidget = QVideoWidget(self)
-        #self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize)
-        #self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.videoWidget = QVideoWidget(self)
+        self.videoWidget.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
+        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.mediaPlayer.setVideoOutput(self.videoWidget)
+        self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.wmv")))
         ###############################################
 
         self.setWindowState(Qt.WindowNoState)
@@ -83,23 +85,20 @@ class Frogger(QWidget):
         self.isClient = False
 
 
-    # def initVideo(self):
-    #     self.mediaPlayer.setVideoOutput(self.videoWidget)
-    #     self.mediaPlayer.setMedia(QMediaContent(QUrl(Config.spriteLocation + "Intro.wmv")))
-    #     self.mediaPlayer.setVideoOutput(self.videoWidget)
-    #     self.videoWidget.show()
-    #     self.mediaPlayer.play()
+    def initVideo(self):
+        self.videoWidget.show()
+        self.mediaPlayer.play()
 
     def __init_ui__(self):
-        self.DisplayMainMenu()
         self.setWindowTitle('Frogger')
         self.setWindowIcon(QtGui.QIcon(Config.spriteLocation+'iconFrog.png')) #ikonica
         self.resize(Config.mapSize * Config.gridSize, Config.mapSize * Config.gridSize + 50)
         self.FixWindowSize()
-        #self.initVideo()
-        #q = QTimer()
-        #q.singleShot(6000, self.DisplayMainMenu)
         self.show()
+        self.initVideo()
+
+        q = QTimer()
+        q.singleShot(6000, self.DisplayMainMenu)
 
     def HsFunkc(self):
         self.Menu.HsElementsShow(self.highscore.top3)
@@ -111,12 +110,16 @@ class Frogger(QWidget):
         self.setMaximumHeight((Config.mapSize+1) * Config.gridSize)
         self.setMaximumWidth(Config.mapSize * Config.gridSize)
 
+    def RemoveVideoIntro(self):
+        try:
+            self.mediaPlayer.stop()
+            self.videoWidget.setParent(None)
+            self.videoWidget = None
+        except:
+            pass
+
     def DisplayMainMenu(self):
-        #self.mediaPlayer.stop()
-        #self.mediaPlayer.setVideoOutput(None)
-        #self.videoWidget.setGeometry(0, 0, 0, 0)
-        #self.videoWidget.hide()
-        #self.videoWidget = None
+        self.RemoveVideoIntro()
         self.Menu = None
         self.Menu = Meni(self, self.SinglePlayerMode, self.TwoPlayerMode, self.HsFunkc, self.MainMenuHostClick,self.MainMenuJoinClick, self.CloseWindow)
 
@@ -756,6 +759,7 @@ class Frogger(QWidget):
                 go.SetPosition(dictObj[strId][0], dictObj[strId][1])
                 if len(dictObj[strId]) == 3: #ako je 3 znaci da imamo i sprite poslat
                     go.ChangeSprite(dictObj[strId][2])
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
